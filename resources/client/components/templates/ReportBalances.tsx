@@ -1,4 +1,4 @@
-import { Card, Typography, Grid, Divider, Box } from '@mui/material';
+import { Typography, Grid, Divider, Box } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Balance from '../../interfaces/Balance';
 import { formatDate, useFetch } from '../../Utils';
@@ -32,7 +32,6 @@ export default function ReportBalances(_props: ReportBalancesProps) {
   return (
     <IsFetching isFetching={isFetching}>
       <Empty items={report} text="No balances recorded yet, did you setup accounts?">
-        <Card sx={{ padding: '10px' }}>
           {report.map((balance) => (
             <Box key={balance.iban}>
               <Grid container justifyContent="space-between" alignItems="center">
@@ -52,7 +51,6 @@ export default function ReportBalances(_props: ReportBalancesProps) {
               <Divider />
             </Box>
           ))}
-        </Card>
       </Empty>
     </IsFetching>
   );

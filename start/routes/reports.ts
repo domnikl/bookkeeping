@@ -3,10 +3,15 @@ import Database from '@ioc:Adonis/Lucid/Database';
 
 Route.get('reports/balances', async () => {
   const report = await Database.rawQuery(
-    `SELECT DISTINCT ON (b.account) b.account AS iban, a.name AS account, b."bookingDate", b.amount
-    FROM balances b
-    LEFT JOIN accounts AS a ON a.iban = b.account
-    ORDER BY b.account, b."bookingDate" DESC;`,
+    `SELECT a.iban, a.name AS account, b."bookingDate", b.amount
+    FROM accounts a
+    INNER JOIN (
+        SELECT DISTINCT ON (b.account) b."bookingDate", b.account AS iban, b.amount
+        FROM balances b
+        ORDER BY b.account, b."bookingDate" DESC
+    ) b ON b.iban = a.iban
+    WHERE a."isActive" = true
+    ORDER BY a.sort;`,
     []
   );
 
