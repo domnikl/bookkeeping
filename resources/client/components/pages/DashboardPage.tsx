@@ -125,20 +125,6 @@ export default function DashboardPage() {
             </Stack>
             <Stack>
               <Stack direction="row" justifyContent="space-between" alignContent="baseline">
-                <h2>New payments</h2>
-                <Button component={Link} to="/payments" variant="text">
-                  see all payments
-                </Button>
-              </Stack>
-
-              <IncomingPaymentsList
-                onCategoryCreated={handleCategoryCreated}
-                onIncomingPaymentApplied={handleIncomingPaymentApplied}
-                categories={categories ?? []}
-              />
-            </Stack>
-            <Stack>
-              <Stack direction="row" justifyContent="space-between" alignContent="baseline">
                 <h2>Budget</h2>
                 <Button component={Link} to="/categories" variant="text">
                   setup categories
@@ -157,6 +143,20 @@ export default function DashboardPage() {
               <Stack>
                 <h2>Forecast</h2>
                 <ReportForecast isFetching={isLoadingReportCategories} />
+              </Stack>
+              <Stack>
+                <Stack direction="row" justifyContent="space-between" alignContent="baseline">
+                  <h2>New payments</h2>
+                  <Button component={Link} to="/payments" variant="text">
+                    see all payments
+                  </Button>
+                </Stack>
+
+                <IncomingPaymentsList
+                  onCategoryCreated={handleCategoryCreated}
+                  onIncomingPaymentApplied={handleIncomingPaymentApplied}
+                  categories={categories ?? []}
+                />
               </Stack>
             </Stack>
           </Grid>
