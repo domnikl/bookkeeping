@@ -1,10 +1,42 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
 import { Line } from 'react-chartjs-2';
 import { ChartData, ChartDataset, ChartOptions } from 'chart.js';
 import { formatDate } from '../../Utils';
 import Balance from '../../interfaces/Balance';
+import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
+import { CategoryBudgetContext } from '../pages/DashboardPage';
+
+const sumBudgets = (budget: CategoryBudget[]): number => {
+  return budget.reduce((previous, current) => previous + (current.remaining ?? 0), 0) / 100;
+}
+
+const buildPrediction = (balances: Balance[], categoryBudget: CategoryBudget[]) => {
+  if (balances.length == 0) return [];
+  
+  const last = balances[0];
+  let balance = last.amount / 100;
+
+  const withoutDueDate = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate === null);
+  const withDueDate = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null);
+  const dueDateGone = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null && c.dueDate < new Date());
+
+  const data = new Array(31);
+  data[last.bookingDate.getDate() - 1] = last.amount / 100 + sumBudgets(dueDateGone);
+
+  const daysLeft = 31 - last.bookingDate.getDate();
+  const daily = sumBudgets(withoutDueDate) / daysLeft;
+
+  for (let i = last.bookingDate.getDate() + 1; i <= 31; i++) {
+    const sumDueCategories = sumBudgets(withDueDate.filter((c) => c.dueDate?.getDate() == i));
+
+    data[i - 1] = balance + sumDueCategories + daily;
+    balance = balance + sumDueCategories + daily;
+  }
+
+  return data;
+}
 
 const colors = [
   '#ffa726',
@@ -22,7 +54,7 @@ const colors = [
   '#4fc3f7',
 ];
 
-const balancesToGraphData = (balances: Balance[]): ChartDataset[] => {
+const balancesToGraphData = (balances: Balance[], categoryBudget: CategoryBudget[]): ChartDataset[] => {
   const byMonth: Map<string, Balance[]> = new Map<string, Balance[]>();
   const byDate: Map<string, Balance> = new Map<string, Balance>();
 
@@ -45,7 +77,7 @@ const balancesToGraphData = (balances: Balance[]): ChartDataset[] => {
     byMonth.set(key, [...existing, x]);
   });
 
-  return Array.from(byMonth).map(([key, balances], index): ChartDataset => {
+  const existingValues = Array.from(byMonth).map(([key, balances], index): ChartDataset => {
     const data = new Array(31);
 
     balances.forEach((x: Balance) => {
@@ -64,6 +96,18 @@ const balancesToGraphData = (balances: Balance[]): ChartDataset[] => {
       hidden: index > 3,
     };
   });
+
+  const predictions: ChartDataset[] = [{
+    label: 'prediction',
+    data: buildPrediction(b, categoryBudget),
+    fill: false,
+    backgroundColor: colors[0],
+    borderColor: colors[0],
+    borderDash: [3, 5],
+    hidden: false
+  }];
+
+  return existingValues.concat(predictions);
 };
 
 type BalancesGraphProps = {
@@ -72,9 +116,11 @@ type BalancesGraphProps = {
 };
 
 export default function BalancesGraph(props: BalancesGraphProps) {
+  const categoryBudgets = useContext<CategoryBudget[]>(CategoryBudgetContext);
+
   const data: ChartData = {
     labels: Array.from({ length: 31 }, (_, i) => i + 1),
-    datasets: balancesToGraphData(props.balances),
+    datasets: balancesToGraphData(props.balances, categoryBudgets),
   };
 
   const options: ChartOptions = {
