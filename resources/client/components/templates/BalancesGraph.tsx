@@ -107,7 +107,7 @@ const balancesToGraphData = (balances: Balance[], categoryBudget: CategoryBudget
     hidden: false
   }];
 
-  return existingValues.concat(predictions);
+  return predictions.concat(existingValues);
 };
 
 type BalancesGraphProps = {
