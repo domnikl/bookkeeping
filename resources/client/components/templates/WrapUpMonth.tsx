@@ -17,8 +17,8 @@ export default function WrapUpMonth(props: WrapUpMonthProps) {
   const dueDates = props.categories
     .map((x) => x.dueDate)
     .filter((x) => x != null)
-    .sort((a: Date, b: Date) => a.getDate() - b.getDate());
-
+    .sort((a: Date, b: Date) => b.getDate() - a.getDate());
+  console.log(dueDates);
   const smallest = dueDates[0] ?? new Date();
 
   const handleClick = () => {
