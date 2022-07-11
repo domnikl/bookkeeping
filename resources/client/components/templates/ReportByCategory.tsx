@@ -36,12 +36,10 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
   const categoryBudgets = useContext<CategoryBudget[]>(CategoryBudgetContext);
 
   const sorted = categoryBudgets.sort(sortCriteria);
-  console.log(sortCriteria);
-  console.log(categoryBudgets);
 
   const handleSortClick = (criteria: CategoryBudgetSortFunction) => {
     setSortCriteria(() => criteria);
-  }
+  };
 
   return (
     <IsFetching isFetching={props.isFetching}>
