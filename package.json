@@ -61,7 +61,7 @@
     "date-fns": "^2.24.0",
     "discord-typescript": "^1.0.0",
     "dotenv": "^10.0.0",
-    "fints": "https://gitpkg.now.sh/domnikl/fints/packages/fints?master",
+    "fints": "https://gitpkg.now.sh/domnikl/fints/packages/fints?fcfda59c1985f7e0d86c655d804243bfe61b87d7",
     "laravel-mix": "^6.0.31",
     "pg": "^8.7.1",
     "pino-pretty": "^7.1.0",
