@@ -1,6 +1,6 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema';
 
-export default class AddPartenToCategories extends BaseSchema {
+export default class AddParentToCategories extends BaseSchema {
   protected tableName = 'categories';
 
   public async up() {
