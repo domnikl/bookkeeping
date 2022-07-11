@@ -5,7 +5,7 @@ export default class AddIsactiveAndSortToAccounts extends BaseSchema {
 
   public async up() {
     this.schema.alterTable(this.tableName, (table) => {
-      table.boolean('isActive', { useTz: true }).nullable();
+      table.boolean('isActive').nullable();
       table.integer('sort').defaultTo('0');
     });
   }
