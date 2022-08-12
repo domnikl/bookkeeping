@@ -3,8 +3,7 @@ import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
 import { Line } from 'react-chartjs-2';
 import { ChartData, ChartDataset, ChartOptions } from 'chart.js';
-import { formatDate } from '../../Utils';
-import Balance from '../../interfaces/Balance';
+import Balance, { BalancesMap } from '../../interfaces/Balance';
 import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
 import { CategoryBudgetContext } from '../pages/DashboardPage';
 
@@ -12,23 +11,28 @@ const sumBudgets = (budget: CategoryBudget[]): number => {
   return budget.reduce((previous, current) => previous + (current.remaining ?? 0), 0) / 100;
 }
 
-const buildPrediction = (balances: Balance[], categoryBudget: CategoryBudget[]) => {
-  if (balances.length == 0) return [];
+const buildPrediction = (balances: BalancesMap, categoryBudget: CategoryBudget[]) => {
+  const months = Object.keys(balances);
   
-  const last = balances[0];
-  let balance = last.amount / 100;
+  if (months.length == 0) return [];
+  
+  const lastMonth = months[0];
+  const lastBalance = balances[lastMonth][0];
+
+  let balance = lastBalance.amount / 100;
 
   const withoutDueDate = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate === null);
   const withDueDate = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null);
   const dueDateGone = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null && c.dueDate < new Date());
 
   const data = new Array(31);
-  data[last.bookingDate.getDate() - 1] = last.amount / 100 + sumBudgets(dueDateGone);
+  const d = new Date(lastBalance.bookingDate);
+  data[d.getDate() - 1] = lastBalance.amount / 100 + sumBudgets(dueDateGone);
 
-  const daysLeft = 31 - last.bookingDate.getDate();
+  const daysLeft = 31 - d.getDate();
   const daily = sumBudgets(withoutDueDate) / daysLeft;
 
-  for (let i = last.bookingDate.getDate() + 1; i <= 31; i++) {
+  for (let i = d.getDate() + 1; i <= 31; i++) {
     const sumDueCategories = sumBudgets(withDueDate.filter((c) => c.dueDate?.getDate() == i));
 
     data[i - 1] = balance + sumDueCategories + daily;
@@ -54,41 +58,21 @@ const colors = [
   '#4fc3f7',
 ];
 
-const balancesToGraphData = (balances: Balance[], categoryBudget: CategoryBudget[]): ChartDataset[] => {
-  const byMonth: Map<string, Balance[]> = new Map<string, Balance[]>();
-  const byDate: Map<string, Balance> = new Map<string, Balance>();
+const balancesToGraphData = (balances: BalancesMap, categoryBudget: CategoryBudget[]): ChartDataset[] => {
+  const months = Object.keys(balances);
 
-  const b = balances.sort((a, b) => (a.bookingDate > b.bookingDate ? -1 : 1));
-
-  // take last booking of the day
-  b.forEach((x) => {
-    const key = formatDate(x.bookingDate);
-
-    if (!byDate.has(key)) {
-      byDate.set(formatDate(x.bookingDate), x);
-    }
-  });
-
-  // group by month
-  byDate.forEach((x) => {
-    const key = formatDate(x.bookingDate).substr(0, 7);
-    const existing = byMonth.get(key) ?? [];
-
-    byMonth.set(key, [...existing, x]);
-  });
-
-  const existingValues = Array.from(byMonth).map(([key, balances], index): ChartDataset => {
+  const existingValues = months.map((month, index): ChartDataset => {
     const data = new Array(31);
-
-    balances.forEach((x: Balance) => {
-      const index = x.bookingDate.getDate() - 1;
+    
+    balances[month].forEach((x: Balance) => {
+      const index = new Date(x.bookingDate).getDate() - 1;
       data[index] = x.amount / 100;
     });
 
     const color = colors[index];
 
     return {
-      label: key,
+      label: month,
       data: data,
       fill: false,
       backgroundColor: color,
@@ -99,7 +83,7 @@ const balancesToGraphData = (balances: Balance[], categoryBudget: CategoryBudget
 
   const predictions: ChartDataset[] = [{
     label: 'prediction',
-    data: buildPrediction(b, categoryBudget),
+    data: buildPrediction(balances, categoryBudget),
     fill: false,
     backgroundColor: colors[0],
     borderColor: colors[0],
@@ -112,7 +96,7 @@ const balancesToGraphData = (balances: Balance[], categoryBudget: CategoryBudget
 
 type BalancesGraphProps = {
   isFetching: boolean;
-  balances: Balance[];
+  balances: BalancesMap;
 };
 
 export default function BalancesGraph(props: BalancesGraphProps) {

@@ -4,3 +4,7 @@ export default interface Balance {
   bookingDate: Date;
   amount: number;
 }
+
+export interface BalancesMap {
+  [key: string]: Balance[]
+}
