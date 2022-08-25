@@ -13,6 +13,10 @@ Route.get('categories', async () => {
   return await CategoryModel.query().orderBy('summary');
 });
 
+Route.get('categories/parents', async() => {
+  return await CategoryModel.query().whereNotNull('parent').distinct('parent').orderBy('parent')
+});
+
 Route.post('close-month/:date', async ({ request }) => {
   await wrapUpMonth(request.params().date)
 

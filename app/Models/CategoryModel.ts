@@ -22,6 +22,9 @@ export default class CategoryModel extends BaseModel {
   @column({ columnName: 'isActive', serializeAs: 'isActive' })
   public isActive: boolean = true;
 
+  @column()
+  public parent: null | string;
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
 

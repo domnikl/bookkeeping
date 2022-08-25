@@ -5,4 +5,5 @@ export default interface Category {
   expectedAmount: number;
   isActive: boolean;
   every: null | number;
+  parent: null | string;
 }

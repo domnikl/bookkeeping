@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   FormControl,
@@ -13,9 +14,14 @@ import React, { useEffect, useState } from 'react';
 import StyledModal from '../molecules/StyledModal';
 import { v4 as uuidv4 } from 'uuid';
 import { DatePicker } from '@mui/lab';
-import { beginOfMonth, removeTimeFromDate } from '../../Utils';
+import { beginOfMonth, removeTimeFromDate, useFetch } from '../../Utils';
 import IncomingPayment from 'resources/client/interfaces/IncomingPayment';
 import Category from 'resources/client/interfaces/Category';
+import { useQuery } from 'react-query';
+
+const loadParents = () => {
+  return useFetch<Array<{parent: string}>>('/categories/parents');
+};
 
 type SetupCategoryModalProps = {
   onClose: () => void;
@@ -28,6 +34,18 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
   const [every, setEvery] = useState<string | number>('');
   const [amount, setAmount] = useState<number>(10);
   const [dueDate, setDueDate] = useState<null | Date>(null);
+  const [parent, setParent] = useState<null | string>();
+
+  let existingParents: Array<{ label: string }> = [];
+  const { data: parents } = useQuery<Array<{ parent: string }>>('parents', loadParents);
+
+  if (parents !== undefined) {
+    existingParents = parents.map((e) => {
+      return { label: e.parent ?? '' };
+    });
+  }
+
+  console.log(existingParents);
 
   useEffect(() => {
     setSummary(props.incomingPayment?.summary.substr(0, 100));
@@ -52,6 +70,7 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
       expectedAmount: amount,
       dueDate: every === '' ? null : dueDate,
       isActive: true,
+      parent: parent ?? null,
     });
   };
 
@@ -101,6 +120,24 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
               type="number"
               onChange={(e) => setAmount(parseInt(e.target.value))}
               defaultValue={amount}
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <Autocomplete
+              freeSolo
+              id="parent"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  key={parent}
+                  label="Parent"
+                  variant="outlined"
+                  defaultValue={parent}
+                  onChange={(e) => setParent(e.target.value)}
+                />
+              )}
+              options={existingParents ?? []}
             />
           </FormControl>
 
