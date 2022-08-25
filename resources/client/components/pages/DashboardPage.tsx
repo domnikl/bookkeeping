@@ -18,7 +18,7 @@ import PageRoot from '../atoms/PageRoot';
 import BalancesGraph from '../templates/BalancesGraph';
 import AccountSelect from '../molecules/AccountSelect';
 import Account from '../../interfaces/Account';
-import Balance from '../../interfaces/Balance';
+import { BalancesMap } from '../../interfaces/Balance';
 import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
 import Category from 'resources/client/interfaces/Category';
 import WrapUpMonth from '../templates/WrapUpMonth';
@@ -39,9 +39,9 @@ const loadCategories = () => {
 };
 
 const loadBalances = (iban: string, from: Date, to: Date) => {
-  return useFetch<Balance[]>(
-    `/balances/${iban}/${format(from, 'yyyy-MM-dd')}T00:00:00/${format(to, 'yyyy-MM-dd')}T23:59:59`
-  ).then((data) => data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) })));
+  return useFetch<BalancesMap>(
+    `/balances/${iban}/${format(from, 'yyyy-MM-dd')}/${format(to, 'yyyy-MM-dd')}`
+  );
 };
 
 const loadReportCategories = (from: Date, to: Date) => {
@@ -78,10 +78,10 @@ export default function DashboardPage() {
     getLocalStorage<Account | null>('accountForBalances', () => null)
   );
 
-  let balances: Balance[] | undefined = [];
+  let balances: BalancesMap | undefined = {};
   let isFetchingBalances = false;
 
-  ({ data: balances, isLoading: isFetchingBalances } = useQuery<Balance[], Error>(
+  ({ data: balances, isLoading: isFetchingBalances } = useQuery<BalancesMap, Error>(
     ['balances', accountForBalances, balancesGraphStartDate],
     () => loadBalances(accountForBalances?.iban ?? '', balancesGraphStartDate, new Date())
   ));
@@ -121,7 +121,7 @@ export default function DashboardPage() {
                 />
               </Stack>
 
-              <BalancesGraph isFetching={isFetchingBalances} balances={balances ?? []} />
+              {!!balances && <BalancesGraph isFetching={isFetchingBalances} balances={balances ?? []} />}
             </Stack>
             <Stack>
               <Stack direction="row" justifyContent="space-between" alignContent="baseline">
