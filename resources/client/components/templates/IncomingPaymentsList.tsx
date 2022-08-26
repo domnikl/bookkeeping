@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useFetch, usePostFetch } from '../../Utils';
 import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
@@ -10,6 +10,7 @@ import IncomingPayment from 'resources/client/interfaces/IncomingPayment';
 import Category from 'resources/client/interfaces/Category';
 import Payment from 'resources/client/interfaces/Payment';
 import { v4 as uuidv4 } from 'uuid';
+import { useQuery, useQueryClient } from 'react-query';
 
 const loadIncomingPayments = () => {
   return useFetch<IncomingPayment[]>('/incoming-payments').then((data) =>
@@ -32,21 +33,17 @@ type IncomingPaymentsListProps = {
 };
 
 export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
-  const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [incomingPayments, setIncomingPayments] = useState<IncomingPayment[]>([]);
   const [incomingPaymentToSetupCategory, setIncomingPaymentToSetupCategory] =
     useState<null | Category>(null);
   const [incomingPaymentToApply, setIncomingPaymentToApply] = useState<null | IncomingPayment>(
     null
   );
 
-  useEffect(() => {
-    setIsFetching(true);
-    loadIncomingPayments().then((data) => {
-      setIncomingPayments(data);
-      setIsFetching(false);
-    });
-  }, []);
+  const queryClient = useQueryClient();
+  const {
+    isLoading,
+    data: incomingPayments,
+  } = useQuery<IncomingPayment[], Error>('incoming-payments', loadIncomingPayments);
 
   const handleCloseApply = () => {
     setIncomingPaymentToApply(null);
@@ -59,7 +56,7 @@ export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
   const handleSubmitApply = (payment: Payment) => {
     applyPayment(payment).then(() => {
       props.onIncomingPaymentApplied(payment);
-      setIncomingPayments(incomingPayments.filter((x) => x.id != incomingPaymentToApply?.id));
+      queryClient.invalidateQueries(['incoming-payments']);
       setIncomingPaymentToApply(null);
     });
   };
@@ -88,8 +85,8 @@ export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
   };
 
   return (
-    <IsFetching isFetching={isFetching}>
-      <Empty items={incomingPayments} text="There are no new payments.">
+    <IsFetching isFetching={isLoading}>
+      <Empty items={incomingPayments ?? null} text="There are no new payments.">
         <SetupCategoryModal
           onSubmit={handleSubmitSetupCategoryModal}
           onClose={handleCloseSetupCategory}
@@ -102,7 +99,7 @@ export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
           categories={props.categories}
         />
         <Stack spacing={1}>
-          {incomingPayments.map((payment: IncomingPayment) => (
+          {(incomingPayments ?? []).map((payment: IncomingPayment) => (
             <IncomingPaymentCard
               incomingPayment={payment}
               key={payment.id}
