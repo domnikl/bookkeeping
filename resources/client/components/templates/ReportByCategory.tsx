@@ -1,73 +1,127 @@
-import {
-  TableContainer,
-  Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Button,
-  Stack,
-} from '@mui/material';
-import React, { useContext, useState } from 'react';
-import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
+import { Check, Warning } from '@mui/icons-material';
+import { Stack, TableCell, Typography } from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
+import CategoryBudget from '../../interfaces/CategoryBudget';
+import { formatDate, getLocalStorage, setLocalStorage } from '../../Utils';
+import AmountChip from '../atoms/AmountChip';
 import IsFetching from '../atoms/IsFetching';
+import CircularProgressWithLabel from '../molecules/CircularProgressWithLabel';
 import Empty from '../molecules/Empty';
+import EnhancedTable, { HeadCell } from '../molecules/EnhancedTable';
 import { CategoryBudgetContext } from '../pages/DashboardPage';
-import ReportByCategoryItem from './ReportByCategoryItem';
+
+function remainingColumn(c: CategoryBudget) {
+  let contents: any = null;
+
+  if (c.remaining == 0) {
+    contents = <Check />;
+  } else if (c.remaining == null) {
+    contents = (
+      <Stack direction="row" justifyContent="space-between">
+        <Warning />
+        <AmountChip amount={0} />
+      </Stack>
+    );
+  } else {
+    contents = <AmountChip amount={c.remaining / 100} />;
+  }
+
+  return <TableCell align="right">{contents}</TableCell>;
+}
 
 type ReportByCategoryProps = {
   isFetching: boolean;
 };
 
-type CategoryBudgetSortFunction = (a: CategoryBudget, b: CategoryBudget) => number;
-
-const sortBySummary: CategoryBudgetSortFunction = (a: CategoryBudget, b: CategoryBudget) =>
-  a.summary > b.summary ? 1 : -1;
-const sortByExpected: CategoryBudgetSortFunction = (a: CategoryBudget, b: CategoryBudget) =>
-  a.expectedAmount < b.expectedAmount ? -1 : 1;
-const sortByAmount: CategoryBudgetSortFunction = (a: CategoryBudget, b: CategoryBudget) =>
-  a.amount != null && a.amount < b.amount!! ? -1 : 1;
-const sortByRemaining: CategoryBudgetSortFunction = (a: CategoryBudget, b: CategoryBudget) =>
-  a.remaining != null && a.remaining < b.remaining!! ? -1 : 1;
+type LocalStorageParams = {
+  sortOrder: string;
+  sortKey: string;
+}
 
 export default function ReportByCategory(props: ReportByCategoryProps) {
-  const [sortCriteria, setSortCriteria] = useState<CategoryBudgetSortFunction>(() => sortBySummary);
+  const [sortParams, setSortParams] = useState<LocalStorageParams>(getLocalStorage<LocalStorageParams>('reportByCategorySort', () => { return { sortOrder: 'asc', sortKey: 'summary' }}));
   const categoryBudgets = useContext<CategoryBudget[]>(CategoryBudgetContext);
 
-  const sorted = categoryBudgets.sort(sortCriteria);
+  useEffect(() => {
+    setLocalStorage<LocalStorageParams>('reportByCategorySort', sortParams);
+  }, [sortParams]);
 
-  const handleSortClick = (criteria: CategoryBudgetSortFunction) => {
-    setSortCriteria(() => criteria);
-  };
+  const headCells: HeadCell[] = [
+    {
+      id: 'summary',
+      disablePadding: false,
+      label: 'Category',
+      numeric: false,
+    },
+    {
+      id: 'expectedAmount',
+      disablePadding: false,
+      label: 'Expected',
+      numeric: true,
+    },
+    {
+      id: 'amount',
+      disablePadding: false,
+      label: 'Actual',
+      numeric: true,
+    },
+    {
+      id: 'remaining',
+      disablePadding: false,
+      label: 'Remaining',
+      numeric: true,
+    },
+    {
+      id: 'percentage',
+      disablePadding: false,
+      label: '%',
+      numeric: true,
+    },
+  ];
+
+  const cells = [
+    (c: CategoryBudget) => (
+      <TableCell>
+        <Stack direction="column">
+          {c.summary}
+          <Typography sx={{ fontSize: 12 }} color="text.secondary">
+            {!!c.dueDate && formatDate(c.dueDate)}
+          </Typography>
+        </Stack>
+      </TableCell>
+    ),
+    (c: CategoryBudget) => (
+      <TableCell align="right">
+        <AmountChip amount={c.expectedAmount / 100} />
+      </TableCell>
+    ),
+    (c: CategoryBudget) => (
+      <TableCell align="right">
+        <AmountChip amount={(c.amount ?? 0) / 100} />
+      </TableCell>
+    ),
+    remainingColumn,
+    (c: CategoryBudget) => (
+      <TableCell align='right'>
+        <CircularProgressWithLabel value={c.percentage ?? 0.0} />
+      </TableCell>
+    )
+  ];
 
   return (
     <IsFetching isFetching={props.isFetching}>
-      <Empty items={sorted} text="There is not enough data to calculate budgets yet.">
-        <Stack direction="row">
-          <Button onClick={() => handleSortClick(sortBySummary)}>summary</Button>
-          <Button onClick={() => handleSortClick(sortByExpected)}>expected</Button>
-          <Button onClick={() => handleSortClick(sortByAmount)}>actual</Button>
-          <Button onClick={() => handleSortClick(sortByRemaining)}>remaining</Button>
-        </Stack>
-        <TableContainer component={Paper}>
-          <Table aria-label="report">
-            <TableHead>
-              <TableRow>
-                <TableCell>Category</TableCell>
-                <TableCell>Expected</TableCell>
-                <TableCell>Actual</TableCell>
-                <TableCell>Remaining</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sorted.map((row) => (
-                <ReportByCategoryItem key={row.id} item={row} />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <Empty items={categoryBudgets} text="There is not enough data to calculate budgets yet.">
+        <EnhancedTable
+          defaultSortKey={sortParams.sortKey}
+          defaultSortOrder={sortParams.sortOrder}
+          rowsPerPage={100}
+          rows={categoryBudgets}
+          headCells={headCells}
+          cells={cells}
+          onSortingChanged={(orderBy, order) => {
+            setSortParams({ sortKey: orderBy, sortOrder: order });
+          }}
+        />
       </Empty>
     </IsFetching>
   );
