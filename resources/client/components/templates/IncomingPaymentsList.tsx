@@ -5,10 +5,11 @@ import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
 import ApplyIncomingPaymentModal from './ApplyIncomingPaymentModal';
 import IncomingPaymentCard from './IncomingPaymentCard';
-import SetupIntervalModal from './SetupCategoryModal';
+import SetupCategoryModal from './SetupCategoryModal';
 import IncomingPayment from 'resources/client/interfaces/IncomingPayment';
 import Category from 'resources/client/interfaces/Category';
 import Payment from 'resources/client/interfaces/Payment';
+import { v4 as uuidv4 } from 'uuid';
 
 const loadIncomingPayments = () => {
   return useFetch<IncomingPayment[]>('/incoming-payments').then((data) =>
@@ -34,7 +35,7 @@ export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [incomingPayments, setIncomingPayments] = useState<IncomingPayment[]>([]);
   const [incomingPaymentToSetupCategory, setIncomingPaymentToSetupCategory] =
-    useState<null | IncomingPayment>(null);
+    useState<null | Category>(null);
   const [incomingPaymentToApply, setIncomingPaymentToApply] = useState<null | IncomingPayment>(
     null
   );
@@ -64,14 +65,22 @@ export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
   };
 
   const handleSetupCategory = (incomingPayment: IncomingPayment): void => {
-    setIncomingPaymentToSetupCategory(incomingPayment);
+    setIncomingPaymentToSetupCategory({
+      id: uuidv4(),
+      summary: incomingPayment.summary.substring(0, 100),
+      expectedAmount: incomingPayment.amount,
+      dueDate: incomingPayment.bookingDate,
+      parent: null,
+      isActive: true,
+      every: null
+    });
   };
 
   const handleCloseSetupCategory = () => {
     setIncomingPaymentToSetupCategory(null);
   };
 
-  const handleSubmitSetupIntervalModal = (category: Category) => {
+  const handleSubmitSetupCategoryModal = (category: Category) => {
     applyCategory(category).then(() => {
       props.onCategoryCreated(category);
       setIncomingPaymentToSetupCategory(null);
@@ -81,10 +90,10 @@ export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
   return (
     <IsFetching isFetching={isFetching}>
       <Empty items={incomingPayments} text="There are no new payments.">
-        <SetupIntervalModal
-          onSubmit={handleSubmitSetupIntervalModal}
+        <SetupCategoryModal
+          onSubmit={handleSubmitSetupCategoryModal}
           onClose={handleCloseSetupCategory}
-          incomingPayment={incomingPaymentToSetupCategory}
+          category={incomingPaymentToSetupCategory}
         />
         <ApplyIncomingPaymentModal
           onSubmit={handleSubmitApply}

@@ -3,7 +3,7 @@ import CategoriesList from '../templates/CategoriesList';
 import IsFetching from '../atoms/IsFetching';
 import PageRoot from '../atoms/PageRoot';
 import Category from 'resources/client/interfaces/Category';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { useFetch } from '../../Utils';
 
 const loadCategories = () => {
@@ -16,6 +16,8 @@ const loadCategories = () => {
 };
 
 export default function CategoriesPage() {
+  const queryClient = useQueryClient();
+
   const {
     isLoading,
     error,
@@ -26,7 +28,7 @@ export default function CategoriesPage() {
     <PageRoot>
       <h1>Categories</h1>
       <IsFetching isFetching={isLoading} error={error}>
-        <CategoriesList categories={categories!!} />
+        <CategoriesList categories={categories!!} onCategoryCreated={() => queryClient.invalidateQueries(['categories'])} />
       </IsFetching>
     </PageRoot>
   );

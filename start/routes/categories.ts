@@ -4,9 +4,11 @@ import CategoryModel from 'App/Models/CategoryModel';
 import { wrapUpMonth } from 'Database/categories';
 
 Route.post('categories', async ({ request }) => {
-  await CategoryModel.updateOrCreate(request.body(), request.body());
+  const category = request.body();
 
-  return request.body();
+  await CategoryModel.updateOrCreate({ id: category.id }, category);
+
+  return category;
 });
 
 Route.get('categories', async () => {
