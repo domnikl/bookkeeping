@@ -1,10 +1,11 @@
-import { TableRow, TableCell, Stack } from '@mui/material';
+import { TableRow, TableCell, Stack, Typography } from '@mui/material';
 import AmountChip from '../atoms/AmountChip';
 import CheckIcon from '@mui/icons-material/Check';
 import WarningIcon from '@mui/icons-material/Warning';
 import React from 'react';
 import CircularProgressWithLabel from '../molecules/CircularProgressWithLabel';
 import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
+import { formatDate } from '../../Utils';
 
 type ReportByCategoryItemProps = {
   item: CategoryBudget;
@@ -28,7 +29,14 @@ export default function ReportByCategoryItem(props: ReportByCategoryItemProps) {
 
   return (
     <TableRow key={props.item.id}>
-      <TableCell>{props.item.summary}</TableCell>
+      <TableCell>
+        <Stack direction="column">
+          {props.item.summary}
+          <Typography sx={{ fontSize: 12 }} color="text.secondary">
+            {!!props.item.dueDate && formatDate(props.item.dueDate)}
+          </Typography>
+        </Stack>
+      </TableCell>
       <TableCell align="right">
         <AmountChip amount={props.item.expectedAmount / 100} />
       </TableCell>
