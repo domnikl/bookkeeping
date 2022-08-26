@@ -6,7 +6,7 @@ export async function findBalancesByMonth(iban: string, from: string, to: string
     await Database.rawQuery(
       `SELECT DISTINCT ON (date("bookingDate")) date("bookingDate"), amount, rank() OVER (PARTITION BY "bookingDate" ORDER BY "bookingDate" DESC)
     FROM balances
-    WHERE "bookingDate" >= ? AND "bookingDate" <= ?
+    WHERE date("bookingDate") >= ? AND date("bookingDate") <= ?
     AND account = ?
     ORDER BY 1 DESC`,
       [from, to, iban]
@@ -20,7 +20,7 @@ export async function findBalancesByMonth(iban: string, from: string, to: string
     const existing = byMonth[key] ?? [];
 
     byMonth[key] = [...existing, {
-      bookingDate: x.date,
+      bookingDate: format(x.date, 'yyyy-MM-dd'),
       amount: x.amount
     }];
   });
