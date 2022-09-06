@@ -251,12 +251,12 @@ export default function EnhancedTable(props: EnhancedTableProps) {
 
                   return (
                     <TableRow
+                      key={"row-" + index}
                       hover
                       onClick={(event) => handleClick(event, row.name)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
                       selected={isItemSelected}
                     >
                       {props.selectable && <TableCell padding="checkbox">

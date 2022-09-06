@@ -26,7 +26,7 @@ function remainingColumn(c: CategoryBudget) {
     contents = <AmountChip amount={c.remaining / 100} />;
   }
 
-  return <TableCell align="right">{contents}</TableCell>;
+  return <TableCell align="right" key={"budget-remaining-" + c.id}>{contents}</TableCell>;
 }
 
 type ReportByCategoryProps = {
@@ -81,7 +81,7 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
 
   const cells = [
     (c: CategoryBudget) => (
-      <TableCell>
+      <TableCell key={'budget-summary-' + c.id}>
         <Stack direction="column">
           {c.summary}
           <Typography sx={{ fontSize: 12 }} color="text.secondary">
@@ -91,21 +91,21 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
       </TableCell>
     ),
     (c: CategoryBudget) => (
-      <TableCell align="right">
+      <TableCell align="right" key={'budget-expected-' + c.id}>
         <AmountChip amount={c.expectedAmount / 100} />
       </TableCell>
     ),
     (c: CategoryBudget) => (
-      <TableCell align="right">
+      <TableCell align="right" key={'budget-actual-' + c.id}>
         <AmountChip amount={(c.amount ?? 0) / 100} />
       </TableCell>
     ),
     remainingColumn,
     (c: CategoryBudget) => (
-      <TableCell align='right'>
+      <TableCell align="right" key={'budget-percentage-' + c.id}>
         <CircularProgressWithLabel value={c.percentage ?? 0.0} />
       </TableCell>
-    )
+    ),
   ];
 
   return (
