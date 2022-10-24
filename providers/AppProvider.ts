@@ -13,6 +13,7 @@ export default class AppProvider {
 
   public async ready() {
     // App is ready
+    import('../app/Cron/index');
   }
 
   public async shutdown() {
