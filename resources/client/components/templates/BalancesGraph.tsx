@@ -7,6 +7,36 @@ import Balance, { BalancesMap } from '../../interfaces/Balance';
 import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
 import { CategoryBudgetContext } from '../pages/DashboardPage';
 
+function isWorkDay(date: Date): boolean {
+  return date.getDay() !== 6 && date.getDay() !== 0;
+}
+
+function removeTimeFromDate(date: Date): Date {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12));
+}
+
+function endOfMonth(date: Date): Date {
+  return removeTimeFromDate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
+}
+
+function workDaysLeftInMonth(start: Date): number {
+  return untilEndOfMonth(start, (date) => (isWorkDay(date) ? 1 : 0))
+    .reduce((a, b) => a + b, 0);
+}
+
+function untilEndOfMonth(start: Date, fn: (current: Date) => any): Array<any> {
+  const mapped = new Array(31);
+
+  for (let i = start.getDate() - 1; i < endOfMonth(start).getDate(); i++) {
+    const x = (new Date(start));
+    x.setDate(i)
+
+    mapped[i] = fn(x)
+  }
+
+  return mapped
+}
+
 const sumBudgets = (budget: CategoryBudget[]): number => {
   return budget.reduce((previous, current) => previous + (current.remaining ?? 0), 0) / 100;
 }
@@ -20,26 +50,27 @@ const buildPrediction = (balances: BalancesMap, categoryBudget: CategoryBudget[]
   const lastBalance = balances[lastMonth][0];
 
   let balance = lastBalance.amount / 100;
+  const start = new Date(lastBalance.bookingDate);
 
   const withoutDueDate = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate === null);
-  const withDueDate = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null);
-  const dueDateGone = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null && c.dueDate < new Date());
+  const withDueDate = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null && c.dueDate >= start);
+  const dueDateGone = categoryBudget.filter((c) => c.remaining != 0 && c.dueDate !== null && c.dueDate < start);
 
-  const data = new Array(31);
-  const d = new Date(lastBalance.bookingDate);
-  data[d.getDate() - 1] = lastBalance.amount / 100 + sumBudgets(dueDateGone);
+  let remainingFromNonWorkDay = sumBudgets(dueDateGone);
+  const daily = sumBudgets(withoutDueDate) / workDaysLeftInMonth(start);
 
-  const daysLeft = 31 - d.getDate();
-  const daily = sumBudgets(withoutDueDate) / daysLeft;
+  return untilEndOfMonth(start, (date) => {
+    const dueOnThisDay = sumBudgets(withDueDate.filter((c) => c.dueDate?.getDate() == date.getDate()));
 
-  for (let i = d.getDate() + 1; i <= 31; i++) {
-    const sumDueCategories = sumBudgets(withDueDate.filter((c) => c.dueDate?.getDate() == i));
+    if (isWorkDay(date)) {
+      balance += daily + remainingFromNonWorkDay + dueOnThisDay;
+      remainingFromNonWorkDay = 0;
+    } else {
+      remainingFromNonWorkDay += dueOnThisDay;
+    }
 
-    data[i - 1] = balance + sumDueCategories + daily;
-    balance = balance + sumDueCategories + daily;
-  }
-
-  return data;
+    return balance;
+  });
 }
 
 const colors = [
@@ -63,20 +94,18 @@ const balancesToGraphData = (balances: BalancesMap, categoryBudget: CategoryBudg
 
   const existingValues = months.map((month, index): ChartDataset => {
     const data = new Array(31);
-    
+
     balances[month].forEach((x: Balance) => {
       const index = new Date(x.bookingDate).getDate() - 1;
       data[index] = x.amount / 100;
     });
 
-    const color = colors[index];
-
     return {
       label: month,
       data: data,
       fill: false,
-      backgroundColor: color,
-      borderColor: color,
+      backgroundColor: colors[index],
+      borderColor: colors[index],
       hidden: index > 3,
     };
   });
