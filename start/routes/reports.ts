@@ -27,9 +27,9 @@ Route.get('reports/:from/:to', async ({ request }) => {
   FROM categories c
   LEFT JOIN (SELECT p."categoryId", SUM(p.amount) AS amount
       FROM payments p
-      WHERE "bookingDate" >= ? AND "bookingDate" <= ?
+      WHERE "bookingDate"::date >= ? AND "bookingDate"::date <= ?
       GROUP BY p."categoryId") AS x ON x."categoryId" = c.id
-  WHERE (("dueDate" >= ? AND "dueDate" <= ?) OR "dueDate" IS NULL)
+  WHERE (("dueDate"::date >= ? AND "dueDate"::date <= ?) OR "dueDate" IS NULL)
   AND c."isActive" = true
   ORDER BY summary`,
     [from, to, from, to]
