@@ -20,7 +20,7 @@ export async function wrapUpMonth(date: string) {
                 now()
         FROM categories c
         WHERE c."isActive" = true
-        AND ((c."dueDate" BETWEEN ? AND ?) OR c.every IS NULL)
+        AND ((c."dueDate" >= ? AND c."dueDate" <= ?) OR c.every IS NULL)
         ORDER BY date;
         `,
       [startOfMonth, startOfMonth, endOfMonth]
