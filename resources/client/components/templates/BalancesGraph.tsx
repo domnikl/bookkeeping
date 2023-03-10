@@ -143,24 +143,21 @@ type BalancesGraphProps = {
 
 export default function BalancesGraph(props: BalancesGraphProps) {
   const categoryBudgets = useContext<CategoryBudget[]>(CategoryBudgetContext);
+  const labels = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
 
   const data: ChartData<'line'> = {
-    labels: Array.from({ length: 31 }, (_, i) => i + 1),
+    labels,
     datasets: balancesToGraphData(props.balances, categoryBudgets),
   };
 
   const options: ChartOptions<'line'> = {
     aspectRatio: 3,
-    scales: {
-      xAxes: {
-        grid: {
-          color: 'rgba(155, 155, 155, 0.3)',
-        },
+    plugins: {
+      legend: {
+        position: 'top' as const,
       },
-      yAxes: {
-        grid: {
-          color: 'rgba(155, 155, 155, 0.5)',
-        },
+      title: {
+        display: false,
       },
     },
   };
