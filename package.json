@@ -17,7 +17,7 @@
     "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@symfony/webpack-encore": "^1.6.1",
+    "@symfony/webpack-encore": "^4.0.0",
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.14",
