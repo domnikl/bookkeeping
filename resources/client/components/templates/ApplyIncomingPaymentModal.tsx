@@ -12,7 +12,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import StyledModal from '../molecules/StyledModal';
 import { v4 as uuidv4 } from 'uuid';
-import { DatePicker } from '@mui/lab';
+import { DatePicker } from '@mui/x-date-pickers';
 import { removeTimeFromDate } from '../../Utils';
 import WarningIcon from '@mui/icons-material/Warning';
 import Category from 'resources/client/interfaces/Category';
@@ -27,13 +27,13 @@ type ApplyIncomingPaymentModalProps = {
 };
 
 export default function ApplyIncomingPaymentModal(props: ApplyIncomingPaymentModalProps) {
-  const [summary, setSummary] = useState<undefined | string>(props.incomingPayment?.summary);
+  const [summary, setSummary] = useState<string>(props.incomingPayment?.summary ?? '');
   const [amount, setAmount] = useState<number>(10);
   const [bookingDate, setBookingDate] = useState<Date>(new Date());
   const [categoryId, setCategoryId] = useState<string>('');
 
   useEffect(() => {
-    setSummary(props.incomingPayment?.summary.substr(0, 100));
+    setSummary(props.incomingPayment?.summary.substr(0, 100) ?? '');
     setAmount(props.incomingPayment?.amount ?? 0);
     setBookingDate(removeTimeFromDate(props.incomingPayment?.bookingDate ?? new Date()));
     setCategoryId('');
@@ -55,49 +55,16 @@ export default function ApplyIncomingPaymentModal(props: ApplyIncomingPaymentMod
     });
   };
 
+  console.log({ summary, amount, bookingDate });
+
   return (
-    <StyledModal open={props.incomingPayment != null} onClose={handleClose}>
+    <StyledModal open={props.incomingPayment !== null} onClose={handleClose}>
       <Typography id="modal-modal-title" variant="h6" component="h2">
         Apply payment
       </Typography>
 
       <Box component="form">
         <Stack spacing={2}>
-          <FormControl fullWidth>
-            <TextField
-              id="summary"
-              label="summary"
-              variant="outlined"
-              onChange={(e) => setSummary(e.target.value.substr(0, 100))}
-              defaultValue={summary}
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <TextField
-              id="amount"
-              label="amount in cents"
-              variant="outlined"
-              type="number"
-              onChange={(e) => setAmount(parseInt(e.target.value))}
-              defaultValue={amount}
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <DatePicker
-              label="booking date"
-              views={['year', 'month', 'day']}
-              openTo="year"
-              value={bookingDate}
-              minDate={new Date('2010-01-01')}
-              onChange={(newValue) => {
-                newValue != null ? setBookingDate(removeTimeFromDate(newValue)) : new Date();
-              }}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </FormControl>
-
           <FormControl fullWidth>
             <InputLabel id="select-category-label">category</InputLabel>
             <Select
@@ -117,6 +84,42 @@ export default function ApplyIncomingPaymentModal(props: ApplyIncomingPaymentMod
               ))}
             </Select>
           </FormControl>
+
+          <FormControl fullWidth>
+            <TextField
+              id="summary"
+              label="summary"
+              variant="outlined"
+              onChange={(e) => setSummary(e.target.value.substr(0, 100))}
+              value={summary}
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <TextField
+              id="amount"
+              label="amount in cents"
+              variant="outlined"
+              type="number"
+              onChange={(e) => setAmount(parseInt(e.target.value))}
+              value={amount}
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <DatePicker
+              label="booking date"
+              views={['year', 'month', 'day']}
+              openTo="day"
+              value={bookingDate}
+              minDate={new Date('2010-01-01')}
+              onChange={(newValue) => {
+                newValue !== null ? setBookingDate(removeTimeFromDate(newValue)) : new Date();
+              }}
+            />
+          </FormControl>
+
+
         </Stack>
       </Box>
       <Button onClick={handleButtonSubmit}>Save</Button>

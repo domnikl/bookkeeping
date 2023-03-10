@@ -16,7 +16,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import StyledModal from '../molecules/StyledModal';
 import { v4 as uuidv4 } from 'uuid';
-import { DatePicker } from '@mui/lab';
+import { DatePicker } from '@mui/x-date-pickers';
 import { removeTimeFromDate, useFetch } from '../../Utils';
 import Category from 'resources/client/interfaces/Category';
 import { useQuery } from 'react-query';
@@ -32,12 +32,12 @@ type SetupCategoryModalProps = {
 };
 
 export default function SetupCategoryModal(props: SetupCategoryModalProps) {
-  const [summary, setSummary] = useState<undefined | string>();
-  const [every, setEvery] = useState<number | null>(null);
+  const [summary, setSummary] = useState<string>('');
+  const [every, setEvery] = useState<number | null>(1);
   const [amount, setAmount] = useState<number>(10);
-  const [dueDate, setDueDate] = useState<null | Date>(null);
-  const [parent, setParent] = useState<null | string>();
-  const [isActive, setIsActive] = useState<boolean>(false);
+  const [dueDate, setDueDate] = useState<Date | null>(new Date());
+  const [parent, setParent] = useState<string>('');
+  const [isActive, setIsActive] = useState<boolean>(true);
 
   let existingParents: Array<string> = [];
   const { data: parents } = useQuery<Array<string>>('parents', loadParents);
@@ -47,11 +47,11 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
   }
 
   useEffect(() => {
-    setSummary(props.category?.summary);
+    setSummary(props.category?.summary ?? '');
     setAmount(props.category?.expectedAmount ?? 0);
-    setEvery(props.category?.every ?? null);
+    setEvery(props.category?.every ?? 1);
     setDueDate(props.category?.dueDate ?? null);
-    setParent(props.category?.parent);
+    setParent(props.category?.parent ?? '');
     setIsActive(props.category?.isActive ?? false);
   }, [props.category]);
 
@@ -72,21 +72,21 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
   };
 
   const handleUpdateOnEvery = (newValue: string | number | null) => {
-    const every = newValue != '' ? parseInt(newValue?.toString()!!) : null;
+    const every = newValue !== '' ? parseInt(newValue?.toString()!!) : null;
     setEvery(every);
 
-    if (every == null) {
+    if (every === null) {
       setDueDate(null);
     }
-  }
+  };
 
   return (
-    <StyledModal open={props.category != null} onClose={handleClose}>
+    <StyledModal open={props.category !== null} onClose={handleClose}>
       <Typography id="modal-modal-title" variant="h6" component="h2">
         Setup category
       </Typography>
       <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-        {!!every ? 'This will setup a regular payment that is due every ' + every + ' months.' : ''}
+        {every ? 'This will setup a regular payment that is due every ' + every + ' months.' : ''}
       </Typography>
       <Box component="form">
         <Stack spacing={2}>
@@ -96,7 +96,7 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
               label="summary"
               variant="outlined"
               onChange={(e) => setSummary(e.target.value)}
-              defaultValue={summary}
+              value={summary}
             />
           </FormControl>
 
@@ -105,7 +105,7 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
-              defaultValue={every}
+              value={every}
               label="Interval"
               onChange={(e) => handleUpdateOnEvery(e.target.value)}
             >
@@ -123,7 +123,7 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
               variant="outlined"
               type="number"
               onChange={(e) => setAmount(parseInt(e.target.value))}
-              defaultValue={amount}
+              value={amount}
             />
           </FormControl>
 
@@ -145,11 +145,11 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
               )}
               options={existingParents ?? []}
               onInputChange={(_, newValue: string) => setParent(newValue)}
-              defaultValue={parent}
+              value={parent}
             />
           </FormControl>
 
-          {!!every ? (
+          {every ? (
             <FormControl fullWidth>
               <DatePicker
                 label="due date"
@@ -158,18 +158,22 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
                 value={dueDate}
                 minDate={new Date('2010-01-01')}
                 onChange={(newValue) => {
-                  newValue != null
+                  newValue !== null
                     ? setDueDate(removeTimeFromDate(new Date(newValue)))
                     : setDueDate(null);
                 }}
-                renderInput={(params) => <TextField {...params} />}
               />
             </FormControl>
           ) : null}
 
           <FormControl fullWidth>
             <FormGroup>
-              <FormControlLabel control={<Checkbox checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />} label="is active" />
+              <FormControlLabel
+                control={
+                  <Checkbox checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+                }
+                label="is active"
+              />
             </FormGroup>
           </FormControl>
         </Stack>

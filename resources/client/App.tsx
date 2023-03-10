@@ -25,7 +25,13 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import CategoryIcon from '@mui/icons-material/Category';
 import PaymentsIcon from '@mui/icons-material/Euro';
-import { HashRouter as Router, Link, Route, Switch } from 'react-router-dom';
+import {
+  HashRouter as Router,
+  Route,
+  Link as RouterLink,
+  LinkProps as RouterLinkProps,
+  Switch,
+} from 'react-router-dom';
 import PaymentsPage from './components/pages/PaymentsPage';
 import AuthPage from './components/pages/AuthPage';
 import LoggedInUser from './components/molecules/LoggedInUser';
@@ -33,15 +39,23 @@ import { supabase } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
-function ListItemLink(props) {
-  const { icon, primary, to } = props;
+const Link = React.forwardRef<HTMLAnchorElement, RouterLinkProps>(function Link(itemProps, ref) {
+  return <RouterLink ref={ref} {...itemProps} role={undefined} />;
+});
 
-  const CustomLink = (props) => <Link to={to} {...props} />;
+interface ListItemLinkProps {
+  icon?: React.ReactElement;
+  primary: string;
+  to: string;
+}
+
+function ListItemLink(props: ListItemLinkProps) {
+  const { icon, primary, to } = props;
 
   return (
     <li>
-      <ListItem button component={CustomLink}>
-        <ListItemIcon>{icon}</ListItemIcon>
+      <ListItem button component={Link} to={to}>
+        {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
         <ListItemText primary={primary} />
       </ListItem>
     </li>
