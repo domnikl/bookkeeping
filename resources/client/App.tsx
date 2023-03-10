@@ -19,9 +19,9 @@ import {
   Typography,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { LocalizationProvider } from '@mui/lab';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import enLocale from 'date-fns/locale/en-GB';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import CategoryIcon from '@mui/icons-material/Category';
 import PaymentsIcon from '@mui/icons-material/Euro';

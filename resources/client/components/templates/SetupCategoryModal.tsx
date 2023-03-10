@@ -22,7 +22,7 @@ import Category from 'resources/client/interfaces/Category';
 import { useQuery } from 'react-query';
 
 const loadParents = () => {
-  return useFetch<Array<{parent: string}>>('/categories/parents');
+  return useFetch<Array<string>>('/categories/parents');
 };
 
 type SetupCategoryModalProps = {
@@ -39,13 +39,11 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
   const [parent, setParent] = useState<null | string>();
   const [isActive, setIsActive] = useState<boolean>(false);
 
-  let existingParents: Array<{ label: string }> = [];
-  const { data: parents } = useQuery<Array<{ parent: string }>>('parents', loadParents);
+  let existingParents: Array<string> = [];
+  const { data: parents } = useQuery<Array<string>>('parents', loadParents);
 
   if (parents !== undefined) {
-    existingParents = parents.map((e) => {
-      return { label: e.parent ?? '' };
-    });
+    existingParents = parents.map((e) => e ?? '');
   }
 
   useEffect(() => {
