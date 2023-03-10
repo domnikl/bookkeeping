@@ -55,7 +55,7 @@
     "@mui/material": "^5",
     "@mui/x-date-pickers": "^6.0.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
-    "@supabase/supabase-js": "^1.24.0",
+    "@supabase/supabase-js": "^2.0.0",
     "@types/node-schedule": "^2.1.0",
     "adonis-mix-asset": "^3.0.0",
     "babel-loader": "^8.2.2",
