@@ -20,7 +20,7 @@
     "@symfony/webpack-encore": "^1.6.1",
     "@testing-library/react": "^12.1.2",
     "@types/jest": "^27.4.0",
-    "@types/node": "^17.0.14",
+    "@types/node": "^18.0.0",
     "adonis-preset-ts": "^2.1.0",
     "babel-core": "^6.26.3",
     "babel-jest": "^27.4.6",
