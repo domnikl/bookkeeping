@@ -55,8 +55,6 @@ export default function ApplyIncomingPaymentModal(props: ApplyIncomingPaymentMod
     });
   };
 
-  console.log({ summary, amount, bookingDate });
-
   return (
     <StyledModal open={props.incomingPayment !== null} onClose={handleClose}>
       <Typography id="modal-modal-title" variant="h6" component="h2">

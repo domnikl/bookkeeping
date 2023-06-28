@@ -26,6 +26,15 @@ function workDaysLeftInMonth(start: Date): number {
   return untilEndOfMonth(start, (date) => (isWorkDay(date) ? 1 : 0)).reduce((a, b) => a + b, 0);
 }
 
+export function beginOfMonth(date: Date): Date {
+  return removeTimeFromDate(new Date(date.getFullYear(), date.getMonth(), 1));
+}
+
+export function beginNextMonth(date: Date): Date {
+  date.setMonth(date.getMonth() + 1);
+  return beginOfMonth(date);
+}
+
 function untilEndOfMonth(start: Date, fn: (current: Date) => any): Array<any> {
   const mapped = new Array(31);
 
@@ -39,8 +48,12 @@ function untilEndOfMonth(start: Date, fn: (current: Date) => any): Array<any> {
   return mapped;
 }
 
-const sumBudgets = (budget: CategoryBudget[]): number => {
+const sumRemaining = (budget: CategoryBudget[]): number => {
   return budget.reduce((previous, current) => previous + (current.remaining ?? 0), 0) / 100;
+};
+
+const sumExpected = (budget: CategoryBudget[]): number => {
+  return budget.reduce((previous, current) => previous + (current.expectedAmount ?? 0), 0) / 100;
 };
 
 const buildPrediction = (balances: BalancesMap, categoryBudget: CategoryBudget[]) => {
@@ -62,11 +75,11 @@ const buildPrediction = (balances: BalancesMap, categoryBudget: CategoryBudget[]
     (c) => c.remaining !== 0 && c.dueDate !== null && c.dueDate < start
   );
 
-  let remainingFromNonWorkDay = sumBudgets(dueDateGone);
-  const daily = sumBudgets(withoutDueDate) / workDaysLeftInMonth(start);
+  let remainingFromNonWorkDay = sumRemaining(dueDateGone);
+  const daily = sumRemaining(withoutDueDate) / workDaysLeftInMonth(start);
 
   return untilEndOfMonth(start, (date) => {
-    const dueOnThisDay = sumBudgets(
+    const dueOnThisDay = sumRemaining(
       withDueDate.filter((c) => c.dueDate?.getDate() === date.getDate())
     );
 
@@ -81,11 +94,35 @@ const buildPrediction = (balances: BalancesMap, categoryBudget: CategoryBudget[]
   });
 };
 
+const buildPredictionNextMonth = (balance: number, categoryBudget: CategoryBudget[]) => {
+  const start = beginNextMonth(new Date());
+
+  const withoutDueDate = categoryBudget.filter((c) => c.dueDate === null);
+  const daily = sumExpected(withoutDueDate) / workDaysLeftInMonth(start);
+
+  let remainingFromNonWorkDay = 0;
+
+  return untilEndOfMonth(start, (date) => {
+    const dueOnThisDay = sumExpected(
+      categoryBudget.filter((c) => c.dueDate?.getDate() === date.getDate())
+    );
+
+    if (isWorkDay(date)) {
+      balance += daily + remainingFromNonWorkDay + dueOnThisDay;
+      remainingFromNonWorkDay = 0;
+    } else {
+      remainingFromNonWorkDay += dueOnThisDay;
+    }
+
+    return balance;
+  });
+};
+
 const colors = [
-  '#ffa726',
   '#66bb6a',
-  '#ef5350',
   '#303f9f',
+  '#ffa726',
+  '#ef5350',
   '#26a69a',
   '#d4e157',
   '#fff9c4',
@@ -95,6 +132,7 @@ const colors = [
   '#9e9d24',
   '#880e4f',
   '#4fc3f7',
+  '#808080',
 ];
 
 const balancesToGraphData = (
@@ -103,37 +141,55 @@ const balancesToGraphData = (
 ): ChartDataset<'line'>[] => {
   const months = Object.keys(balances);
 
-  const existingValues = months.map((month, index): ChartDataset<'line'> => {
-    const data = new Array(31);
+  const existingValues: ChartDataset<'line'>[] = months.map(
+    (month, index): ChartDataset<'line'> => {
+      const data = new Array(31);
 
-    balances[month].forEach((x: Balance) => {
-      const index = new Date(x.bookingDate).getDate() - 1;
-      data[index] = x.amount / 100;
-    });
+      balances[month].forEach((x: Balance) => {
+        const index = new Date(x.bookingDate).getDate() - 1;
+        data[index] = x.amount / 100;
+      });
 
-    return {
-      label: month,
-      data: data,
-      fill: false,
-      backgroundColor: colors[index],
-      borderColor: colors[index],
-      hidden: index > 3,
-    };
-  });
+      return {
+        label: month,
+        data: data,
+        fill: false,
+        backgroundColor: colors[index],
+        borderColor: colors[index],
+        hidden: index > 1,
+      };
+    }
+  );
 
-  const predictions: ChartDataset<'line'>[] = [
-    {
+  const predictedThisMonth = buildPrediction(balances, categoryBudget);
+  let predictions: ChartDataset<'line'> = {
+    label: 'prediction',
+    data: predictedThisMonth,
+    fill: false,
+    backgroundColor: colors[0],
+    borderColor: colors[0],
+    borderDash: [3, 5],
+    hidden: false,
+  };
+
+  existingValues.unshift(predictions);
+
+  if (predictedThisMonth.length > 0) {
+    const keys = Object.keys(predictedThisMonth);
+    const last = keys[keys.length - 1];
+
+    existingValues.unshift({
       label: 'prediction',
-      data: buildPrediction(balances, categoryBudget),
+      data: buildPredictionNextMonth(predictedThisMonth[last], categoryBudget),
       fill: false,
-      backgroundColor: colors[0],
-      borderColor: colors[0],
+      backgroundColor: colors[colors.length - 1],
+      borderColor: colors[colors.length - 1],
       borderDash: [3, 5],
       hidden: false,
-    },
-  ];
+    });
+  }
 
-  return predictions.concat(existingValues);
+  return existingValues;
 };
 
 type BalancesGraphProps = {
