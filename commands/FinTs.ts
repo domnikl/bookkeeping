@@ -89,8 +89,17 @@ export async function runImport() {
 
   await Promise.all(
     accounts.map(async (account: SEPAAccount) => {
+      console.log(`importing ${account.iban} ...`);
       const transactions = await getTransactions(client, account, startDate, endDate);
       const affected = await insertTransactionsIntoDatabase(account, transactions);
+
+      if (affected.length > 0) {
+        transactions.forEach((transaction) => {
+          console.log(
+            `${transaction.description}, ${transaction.entryDate}, ${transaction.amount} ${transaction.currency}`
+          );
+        });
+      }
 
       // TODO: report newly transmitted transactions to Discord also
       console.log(
@@ -126,7 +135,7 @@ export default class FinTs extends BaseCommand {
   };
 
   public async run() {
-    runImport();
+    await runImport();
 
     await this.exit();
   }
