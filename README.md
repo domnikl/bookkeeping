@@ -1,6 +1,10 @@
 # bookkeeping
 
-This is my bookkeeping application. It is heavily opionated and uses Postgres as a Backend, FinTS to synchronize bank account balances and transactions and Supabase to handle sign ins and auth.
+This is my bookkeeping application. It is heavily opinionated and uses PostgreSQL as a storage backend, FinTS to synchronize bank account balances and transactions and Supabase to handle sign ins and auth.
+
+## Refresh access to FinTS
+
+Just login into the UI of your bank and run `node ace fints` afterwards.
 
 ## Building it
 
