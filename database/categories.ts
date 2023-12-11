@@ -13,14 +13,14 @@ export async function wrapUpMonth(date: string) {
         SELECT gen_random_uuid() AS id,
                 c.id AS category_id,
                 summary,
-                "expectedAmount",
-                COALESCE("dueDate", DATE(?)) AS "date",
+                expected_amount,
+                COALESCE(due_date, DATE(?)) AS "date",
                 parent,
                 now(),
                 now()
         FROM categories c
-        WHERE c."isActive" = true
-        AND ((c."dueDate" >= ? AND c."dueDate" <= ?) OR c.every IS NULL)
+        WHERE c.is_active = true
+        AND ((c.due_date >= ? AND c.due_date <= ?) OR c.every IS NULL)
         ORDER BY date;
         `,
       [startOfMonth, startOfMonth, endOfMonth]
