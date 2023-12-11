@@ -20,8 +20,8 @@ Route.post('payments', async ({ request, response }) => {
   await Database.transaction(async (trx) => {
     await PaymentModel.create(payment);
 
-    const transaction = await (await TransactionModel.findOrFail(payment.incomingPaymentId)).useTransaction(trx);
-    const sumOfPayments = await sumPaymentsOfTransaction(payment.incomingPaymentId);
+    const transaction = await (await TransactionModel.findOrFail(payment.transactionId)).useTransaction(trx);
+    const sumOfPayments = await sumPaymentsOfTransaction(payment.transactionId);
 
     // only ACK if all of the amount was "spent" in payments
     if (sumOfPayments == transaction.amount) {

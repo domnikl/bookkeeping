@@ -8,7 +8,7 @@ type PaymentsListProps = {
   payments: AppliedPayment[];
 };
 
-export default function IncomingPaymentsList(props: PaymentsListProps) {
+export default function TransactionsList(props: PaymentsListProps) {
   return (
     <Empty items={props.payments} text="There are no payments.">
       <Stack spacing={1}>

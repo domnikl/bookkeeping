@@ -9,7 +9,7 @@ export default class PaymentModel extends BaseModel {
   @column({ isPrimary: true })
   public id: string;
 
-  @column.dateTime({ columnName: 'bookingDate', serializeAs: 'bookingDate' })
+  @column.dateTime({ serializeAs: 'bookingDate' })
   public bookingDate: DateTime;
 
   @column()
@@ -18,16 +18,16 @@ export default class PaymentModel extends BaseModel {
   @column()
   public amount: number;
 
-  @column({ columnName: 'categoryId', serializeAs: 'categoryId' })
+  @column({ serializeAs: 'categoryId' })
   public categoryId: string;
 
   @belongsTo(() => CategoryModel, { foreignKey: 'categoryId' })
   public category: BelongsTo<typeof CategoryModel>;
 
-  @column({ columnName: 'incomingPaymentId', serializeAs: 'incomingPaymentId' })
-  public incomingPaymentId: string;
+  @column({ columnName: 'transaction_id', serializeAs: 'transactionId' })
+  public transactionId: string;
 
-  @belongsTo(() => TransactionModel, { foreignKey: 'incomingPaymentId' })
+  @belongsTo(() => TransactionModel, { foreignKey: 'transactionId' })
   public transaction: BelongsTo<typeof TransactionModel>;
 
   @column.dateTime({ autoCreate: true })

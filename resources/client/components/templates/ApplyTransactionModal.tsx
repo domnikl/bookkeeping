@@ -16,28 +16,28 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { removeTimeFromDate } from '../../Utils';
 import WarningIcon from '@mui/icons-material/Warning';
 import Category from 'resources/client/interfaces/Category';
-import IncomingPayment from 'resources/client/interfaces/IncomingPayment';
+import Transaction from '../../interfaces/Transaction';
 import Payment from 'resources/client/interfaces/Payment';
 
-type ApplyIncomingPaymentModalProps = {
+type ApplyIncomingTransactionModalProps = {
   onClose: () => void;
   onSubmit: (payment: Payment) => void;
   categories: Category[];
-  incomingPayment: null | IncomingPayment;
+  transaction: null | Transaction;
 };
 
-export default function ApplyIncomingPaymentModal(props: ApplyIncomingPaymentModalProps) {
-  const [summary, setSummary] = useState<string>(props.incomingPayment?.summary ?? '');
+export default function ApplyTransactionModal(props: ApplyIncomingTransactionModalProps) {
+  const [summary, setSummary] = useState<string>(props.transaction?.summary ?? '');
   const [amount, setAmount] = useState<number>(10);
   const [bookingDate, setBookingDate] = useState<Date>(new Date());
   const [categoryId, setCategoryId] = useState<string>('');
 
   useEffect(() => {
-    setSummary(props.incomingPayment?.summary.substr(0, 100) ?? '');
-    setAmount(props.incomingPayment?.amount ?? 0);
-    setBookingDate(removeTimeFromDate(props.incomingPayment?.bookingDate ?? new Date()));
+    setSummary(props.transaction?.summary.substr(0, 100) ?? '');
+    setAmount(props.transaction?.amount ?? 0);
+    setBookingDate(removeTimeFromDate(props.transaction?.bookingDate ?? new Date()));
     setCategoryId('');
-  }, [props.incomingPayment]);
+  }, [props.transaction]);
 
   const handleClose = () => {
     props.onClose();
@@ -49,14 +49,14 @@ export default function ApplyIncomingPaymentModal(props: ApplyIncomingPaymentMod
       bookingDate: bookingDate,
       summary: summary ?? '',
       amount: amount,
-      incomingPaymentId: props.incomingPayment?.id.toString() ?? '',
+      transactionId: props.transaction?.id.toString() ?? '',
       categoryId: categoryId,
-      transaction: props.incomingPayment,
+      transaction: props.transaction,
     });
   };
 
   return (
-    <StyledModal open={props.incomingPayment !== null} onClose={handleClose}>
+    <StyledModal open={props.transaction !== null} onClose={handleClose}>
       <Typography id="modal-modal-title" variant="h6" component="h2">
         Apply payment
       </Typography>
@@ -116,8 +116,6 @@ export default function ApplyIncomingPaymentModal(props: ApplyIncomingPaymentMod
               }}
             />
           </FormControl>
-
-
         </Stack>
       </Box>
       <Button onClick={handleButtonSubmit}>Save</Button>

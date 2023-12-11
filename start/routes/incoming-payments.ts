@@ -8,8 +8,10 @@ Route.get('incoming-payments', async () => {
     .orderBy('bookingDate', 'desc')
     .preload('account');
 
-  return await Promise.all(transactions.map(async (t) => {
-    t.amount -= await sumPaymentsOfTransaction(t.id);
-    return t;
-  }));
+  return await Promise.all(
+    transactions.map(async (t) => {
+      t.amount -= await sumPaymentsOfTransaction(t.id);
+      return t;
+    })
+  );
 });

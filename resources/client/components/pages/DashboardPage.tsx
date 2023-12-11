@@ -1,6 +1,6 @@
 import { Button, Grid, Stack } from '@mui/material';
 import React, { createContext, useState } from 'react';
-import IncomingPaymentsList from '../templates/IncomingPaymentsList';
+import TransactionsList from '../templates/TransactionsList';
 import {
   beginOfMonth,
   endOfMonth,
@@ -94,7 +94,7 @@ export default function DashboardPage() {
     queryClient.invalidateQueries('categories');
   };
 
-  const handleIncomingPaymentApplied = () => {
+  const handleTransactionApplied = () => {
     queryClient.invalidateQueries('report-categories');
   };
 
@@ -152,9 +152,9 @@ export default function DashboardPage() {
                   </Button>
                 </Stack>
 
-                <IncomingPaymentsList
+                <TransactionsList
                   onCategoryCreated={handleCategoryCreated}
-                  onIncomingPaymentApplied={handleIncomingPaymentApplied}
+                  onTransactionApplied={handleTransactionApplied}
                   categories={categories ?? []}
                 />
               </Stack>

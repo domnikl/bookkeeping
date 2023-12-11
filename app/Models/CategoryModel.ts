@@ -10,16 +10,16 @@ export default class CategoryModel extends BaseModel {
   @column()
   public summary: string;
 
-  @column({ columnName: 'expectedAmount', serializeAs: 'expectedAmount' })
+  @column({ serializeAs: 'expectedAmount' })
   public expectedAmount: number;
 
-  @column.dateTime({ columnName: 'dueDate', serializeAs: 'dueDate' })
+  @column.dateTime({ serializeAs: 'dueDate' })
   public dueDate: null | DateTime;
 
   @column()
   public every: null | number;
 
-  @column({ columnName: 'isActive', serializeAs: 'isActive' })
+  @column({ serializeAs: 'isActive' })
   public isActive: boolean = true;
 
   @column()

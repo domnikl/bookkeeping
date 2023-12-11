@@ -3,31 +3,31 @@ import React from 'react';
 import { formatDate } from '../../Utils';
 import AmountChip from '../atoms/AmountChip';
 import ArrowRight from '@mui/icons-material/ArrowRight';
-import IncomingPayment from 'resources/client/interfaces/IncomingPayment';
+import Transaction from '../../interfaces/Transaction';
 
-type IncomingPaymentCardProps = {
-  incomingPayment: IncomingPayment;
-  onSetupCategory: (payment: IncomingPayment) => void;
-  onApply: (payment: IncomingPayment) => void;
+type TransactionCardProps = {
+  transaction: Transaction;
+  onSetupCategory: (payment: Transaction) => void;
+  onApply: (payment: Transaction) => void;
 };
 
-export default function IncomingPaymentCard(props: IncomingPaymentCardProps) {
+export default function TransactionCard(props: TransactionCardProps) {
   const additionalInformation = [
-    props.incomingPayment.summary,
-    props.incomingPayment.accountIban,
-    formatDate(props.incomingPayment.bookingDate),
+    props.transaction.summary,
+    props.transaction.accountIban,
+    formatDate(props.transaction.bookingDate),
   ];
 
   const additional = additionalInformation.filter((x) => x != '');
 
   const handleSetupCategory = () => {
-    props.onSetupCategory(props.incomingPayment);
+    props.onSetupCategory(props.transaction);
   };
 
   let detailsLink = <></>;
 
-  if (props.incomingPayment.name.startsWith('AMAZON')) {
-    const orderId = props.incomingPayment.summary.split(' ')[0];
+  if (props.transaction.name.startsWith('AMAZON')) {
+    const orderId = props.transaction.summary.split(' ')[0];
     detailsLink = (
       <Button
         href={
@@ -48,21 +48,21 @@ export default function IncomingPaymentCard(props: IncomingPaymentCardProps) {
         </Typography>
 
         <Typography variant="h6" component="div">
-          {props.incomingPayment.name}
+          {props.transaction.name}
         </Typography>
 
-        {props.incomingPayment.accountIban && (
+        {props.transaction.accountIban && (
           <Typography sx={{ fontSize: 12 }} color="text.secondary">
-            {props.incomingPayment.accountIban}
+            {props.transaction.accountIban}
           </Typography>
         )}
 
         <Stack direction="row" justifyContent="right">
-          <AmountChip amount={props.incomingPayment.amount / 100} />
+          <AmountChip amount={props.transaction.amount / 100} />
         </Stack>
       </CardContent>
       <CardActions>
-        <Button size="small" onClick={() => props.onApply(props.incomingPayment)}>
+        <Button size="small" onClick={() => props.onApply(props.transaction)}>
           Apply
         </Button>
         <Button size="small" onClick={handleSetupCategory}>

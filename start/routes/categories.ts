@@ -20,7 +20,7 @@ Route.get('categories/parents', async() => {
 });
 
 Route.post('close-month/:date', async ({ request }) => {
-  await wrapUpMonth(request.params().date)
+  await wrapUpMonth(request.params().date);
 
   return {};
 });

@@ -3,17 +3,17 @@ import React, { useState } from 'react';
 import { useFetch, usePostFetch } from '../../Utils';
 import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
-import ApplyIncomingPaymentModal from './ApplyIncomingPaymentModal';
-import IncomingPaymentCard from './IncomingPaymentCard';
+import ApplyTransactionModal from './ApplyTransactionModal';
+import TransactionCard from './TransactionCard';
 import SetupCategoryModal from './SetupCategoryModal';
-import IncomingPayment from 'resources/client/interfaces/IncomingPayment';
+import Transaction from '../../interfaces/Transaction';
 import Category from 'resources/client/interfaces/Category';
 import Payment from 'resources/client/interfaces/Payment';
 import { v4 as uuidv4 } from 'uuid';
 import { useQuery, useQueryClient } from 'react-query';
 
-const loadIncomingPayments = () => {
-  return useFetch<IncomingPayment[]>('/incoming-payments').then((data) =>
+const loadTransactions = () => {
+  return useFetch<Transaction[]>('/incoming-payments').then((data) =>
     data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }))
   );
 };
@@ -26,82 +26,80 @@ const applyPayment = (payment: Payment) => {
   return usePostFetch('/payments', payment);
 };
 
-type IncomingPaymentsListProps = {
+type TransactionsListProps = {
   onCategoryCreated: (category: Category) => void;
-  onIncomingPaymentApplied: (payment: Payment) => void;
+  onTransactionApplied: (payment: Payment) => void;
   categories: Category[];
 };
 
-export default function IncomingPaymentsList(props: IncomingPaymentsListProps) {
-  const [incomingPaymentToSetupCategory, setIncomingPaymentToSetupCategory] =
+export default function TransactionsList(props: TransactionsListProps) {
+  const [transactionToSetupCategory, setTransactionToSetupCategory] =
     useState<null | Category>(null);
-  const [incomingPaymentToApply, setIncomingPaymentToApply] = useState<null | IncomingPayment>(
-    null
-  );
+  const [transactionToApply, setTransactionToApply] = useState<null | Transaction>(null);
 
   const queryClient = useQueryClient();
-  const {
-    isLoading,
-    data: incomingPayments,
-  } = useQuery<IncomingPayment[], Error>('incoming-payments', loadIncomingPayments);
+  const { isLoading, data: transactions } = useQuery<Transaction[], Error>(
+    'incoming-payments',
+    loadTransactions
+  );
 
   const handleCloseApply = () => {
-    setIncomingPaymentToApply(null);
+    setTransactionToApply(null);
   };
 
-  const handleApply = (incomingPayment: IncomingPayment): void => {
-    setIncomingPaymentToApply(incomingPayment);
+  const handleApply = (transaction: Transaction): void => {
+    setTransactionToApply(transaction);
   };
 
   const handleSubmitApply = (payment: Payment) => {
     applyPayment(payment).then(() => {
-      props.onIncomingPaymentApplied(payment);
+      props.onTransactionApplied(payment);
       queryClient.invalidateQueries(['incoming-payments']);
-      setIncomingPaymentToApply(null);
+      setTransactionToApply(null);
     });
   };
 
-  const handleSetupCategory = (incomingPayment: IncomingPayment): void => {
-    setIncomingPaymentToSetupCategory({
+  const handleSetupCategory = (transaction: Transaction): void => {
+    setTransactionToSetupCategory({
       id: uuidv4(),
-      summary: incomingPayment.summary.substring(0, 100),
-      expectedAmount: incomingPayment.amount,
-      dueDate: incomingPayment.bookingDate,
+      summary: transaction.summary.substring(0, 100),
+      expectedAmount: transaction.amount,
+      dueDate: transaction.bookingDate,
       parent: null,
       isActive: true,
-      every: null
+      every: null,
     });
   };
 
   const handleCloseSetupCategory = () => {
-    setIncomingPaymentToSetupCategory(null);
+    setTransactionToSetupCategory(null);
   };
 
   const handleSubmitSetupCategoryModal = (category: Category) => {
     applyCategory(category).then(() => {
       props.onCategoryCreated(category);
-      setIncomingPaymentToSetupCategory(null);
+      setTransactionToSetupCategory(null);
     });
   };
 
   return (
     <IsFetching isFetching={isLoading}>
-      <Empty items={incomingPayments ?? null} text="There are no new payments.">
+      <Empty items={transactions ?? null} text="There are no new payments.">
         <SetupCategoryModal
           onSubmit={handleSubmitSetupCategoryModal}
           onClose={handleCloseSetupCategory}
-          category={incomingPaymentToSetupCategory}
+          category={transactionToSetupCategory}
         />
-        <ApplyIncomingPaymentModal
+        <ApplyTransactionModal
           onSubmit={handleSubmitApply}
           onClose={handleCloseApply}
-          incomingPayment={incomingPaymentToApply}
+          transaction={transactionToApply}
           categories={props.categories}
         />
         <Stack spacing={1}>
-          {(incomingPayments ?? []).map((payment: IncomingPayment) => (
-            <IncomingPaymentCard
-              incomingPayment={payment}
+          {(transactions ?? []).map((payment: Transaction) => (
+            <TransactionCard
+              transaction={payment}
               key={payment.id}
               onApply={handleApply}
               onSetupCategory={handleSetupCategory}

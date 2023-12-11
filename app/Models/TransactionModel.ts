@@ -26,7 +26,7 @@ export default class TransactionModel extends BaseModel {
   @belongsTo(() => AccountModel, { foreignKey: 'accountIban' })
   public account: BelongsTo<typeof AccountModel>;
 
-  @column.dateTime({ columnName: 'bookingDate', serializeAs: 'bookingDate' })
+  @column.dateTime({ serializeAs: 'bookingDate' })
   public bookingDate: DateTime;
 
   @column.dateTime({ autoCreate: true })
