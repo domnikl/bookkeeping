@@ -11,7 +11,7 @@ export default class BalanceModel extends BaseModel {
   @column({ serializeAs: 'bookingDate' })
   public bookingDate: DateTime;
 
-  @column({ serializeAs: 'accountIban' })
+  @column({ columnName: 'account', serializeAs: 'accountIban' })
   public accountIban: string;
 
   @column()
