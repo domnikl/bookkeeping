@@ -8,7 +8,7 @@ export default class BalanceModel extends BaseModel {
   @column({ isPrimary: true })
   public id: string;
 
-  @column({ serializeAs: 'bookingDate' })
+  @column({ columnName: 'booking_date', serializeAs: 'bookingDate' })
   public bookingDate: DateTime;
 
   @column({ columnName: 'account', serializeAs: 'accountIban' })

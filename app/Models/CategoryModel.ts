@@ -10,10 +10,10 @@ export default class CategoryModel extends BaseModel {
   @column()
   public summary: string;
 
-  @column({ serializeAs: 'expectedAmount' })
+  @column({ columnName: 'expected_amount', serializeAs: 'expectedAmount' })
   public expectedAmount: number;
 
-  @column.dateTime({ serializeAs: 'dueDate' })
+  @column.dateTime({ columnName: 'due_date', serializeAs: 'dueDate' })
   public dueDate: null | DateTime;
 
   @column()
