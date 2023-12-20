@@ -1,4 +1,4 @@
-import { Button, Typography } from '@mui/material';
+import { Button, Stack, Typography } from "@mui/material";
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 
@@ -17,10 +17,19 @@ export default function LoggedInUser() {
 
   return (
     <>
-      <Typography sx={{ fontSize: 12 }} component="div">
-        {user?.email}
-      </Typography>
-      <LogoutButton />
+      <Stack direction="row" alignItems="center">
+        <img
+          src={user?.picture}
+          alt={user?.given_name}
+          style={{ maxHeight: '48px', marginRight: '5px', borderRadius: '50%' }}
+        />
+
+        <Typography sx={{ fontSize: 12, marginRight: '5px' }} component="div">
+          {user?.given_name}
+        </Typography>
+
+        <LogoutButton />
+      </Stack>
     </>
   );
 }
