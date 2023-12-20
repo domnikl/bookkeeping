@@ -1,90 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Auth0Provider } from '@auth0/auth0-react';
 import 'regenerator-runtime/runtime.js';
-import CssBaseline from '@mui/material/CssBaseline';
-import DashboardPage from './components/pages/DashboardPage';
-import CategoriesPage from './components/pages/CategoriesPage';
-import Box from '@mui/material/Box';
-import {
-  AppBar,
-  Container,
-  createTheme,
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ThemeProvider,
-  Toolbar,
-  Typography,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { createTheme, ThemeProvider } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import enLocale from 'date-fns/locale/en-GB';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import CategoryIcon from '@mui/icons-material/Category';
-import PaymentsIcon from '@mui/icons-material/Euro';
-import {
-  HashRouter as Router,
-  Route,
-  Link as RouterLink,
-  LinkProps as RouterLinkProps,
-  Switch,
-} from 'react-router-dom';
-import PaymentsPage from './components/pages/PaymentsPage';
-import AuthPage from './components/pages/AuthPage';
-import LoggedInUser from './components/molecules/LoggedInUser';
-import { supabase } from './lib/supabase';
-import { User } from '@supabase/supabase-js';
 import { QueryClient, QueryClientProvider } from 'react-query';
-
-const Link = React.forwardRef<HTMLAnchorElement, RouterLinkProps>(function Link(itemProps, ref) {
-  return <RouterLink ref={ref} {...itemProps} role={undefined} />;
-});
-
-interface ListItemLinkProps {
-  icon?: React.ReactElement;
-  primary: string;
-  to: string;
-}
-
-function ListItemLink(props: ListItemLinkProps) {
-  const { icon, primary, to } = props;
-
-  return (
-    <li>
-      <ListItem button component={Link} to={to}>
-        {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
-        <ListItemText primary={primary} />
-      </ListItem>
-    </li>
-  );
-}
+import { auth0 } from './auth0';
+import Layout from './Layout';
 
 export const queryClient = new QueryClient();
 
 export default function App() {
-  const [user, setUser] = useState<null | User>(null);
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    const session = supabase.auth.session();
-    setUser(session?.user ?? null);
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => {
-      authListener?.unsubscribe();
-    };
-  }, []);
-
-  const handleLogout = () => {
-    supabase.auth.signOut().catch(console.error);
-  };
-
   const theme = createTheme({
     palette: {
       primary: {
@@ -98,60 +25,15 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} locale={enLocale}>
         <QueryClientProvider client={queryClient}>
-          <CssBaseline />
-
-          {!user ? (
-            <AuthPage supabase={supabase} />
-          ) : (
-            <Router>
-              <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="fixed">
-                  <Toolbar>
-                    <IconButton
-                      size="large"
-                      edge="start"
-                      color="inherit"
-                      aria-label="menu"
-                      sx={{ mr: 2 }}
-                      onClick={() => setDrawerOpen(!drawerOpen)}
-                    >
-                      <MenuIcon />
-
-                      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-                        <List>
-                          <ListItemLink to="/" icon={<InboxIcon />} primary="Dashboard" />
-                          <ListItemLink to="/payments" icon={<PaymentsIcon />} primary="Payments" />
-                          <ListItemLink
-                            to="/categories"
-                            icon={<CategoryIcon />}
-                            primary="Categories"
-                          />
-                        </List>
-                      </Drawer>
-                    </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                      bookkeeping
-                    </Typography>
-                    <LoggedInUser user={user} onLogout={handleLogout} />
-                  </Toolbar>
-                </AppBar>
-              </Box>
-
-              <Container maxWidth={false}>
-                <Switch>
-                  <Route path="/payments">
-                    <PaymentsPage />
-                  </Route>
-                  <Route path="/categories">
-                    <CategoriesPage />
-                  </Route>
-                  <Route path="/">
-                    <DashboardPage />
-                  </Route>
-                </Switch>
-              </Container>
-            </Router>
-          )}
+          <Auth0Provider
+            domain={auth0.domain}
+            clientId={auth0.clientId}
+            authorizationParams={{
+              redirect_uri: window.location.origin,
+            }}
+          >
+            <Layout />
+          </Auth0Provider>
         </QueryClientProvider>
       </LocalizationProvider>
     </ThemeProvider>

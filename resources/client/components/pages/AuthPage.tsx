@@ -1,24 +1,19 @@
 import { Button, Container, Stack, Typography } from '@mui/material';
-import { SupabaseClient } from '@supabase/supabase-js';
 import React from 'react';
 import PageRoot from '../atoms/PageRoot';
+import { useAuth0 } from '@auth0/auth0-react';
 
-type AuthPageProps = {
-  supabase: SupabaseClient;
+const LoginButton = () => {
+  const { loginWithRedirect } = useAuth0();
+
+  return (
+    <Button variant="contained" onClick={() => loginWithRedirect()}>
+      Sign in
+    </Button>
+  );
 };
 
-export default function AuthPage(props: AuthPageProps) {
-  const handleSignInWithDiscord = async () => {
-    await props.supabase.auth.signIn(
-      {
-        provider: 'discord',
-      },
-      {
-        redirectTo: location.protocol + '//' + location.host,
-      }
-    );
-  };
-
+export default function AuthPage() {
   return (
     <PageRoot>
       <Container maxWidth="sm">
@@ -35,9 +30,7 @@ export default function AuthPage(props: AuthPageProps) {
         </Typography>
 
         <Stack sx={{ pt: 4 }} direction="row" spacing={2} justifyContent="center">
-          <Button variant="contained" onClick={handleSignInWithDiscord}>
-            Discord
-          </Button>
+          <LoginButton />
         </Stack>
       </Container>
     </PageRoot>

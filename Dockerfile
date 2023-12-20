@@ -13,8 +13,6 @@ RUN npm ci
 COPY --chown=node:node . .
 
 FROM dependencies AS build
-ENV REACT_APP_SUPABASE_URL="https://ncsizbcfailsreypnbod.supabase.co"
-ENV REACT_APP_SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYzMzk0NjU2OCwiZXhwIjoxOTQ5NTIyNTY4fQ.tiSW9VAmiUfqGItpzRFWYRZKbzmQfiGioz8FE91a6FY"
 RUN echo "" > .env && node ace build --production
 
 FROM base AS production

@@ -6,16 +6,3 @@ services:
       POSTGRES_PASSWORD: bookkeeping
     ports:
       - "5432:5432"
-  #bookkeeping:
-  #  restart: always
-  #  build:
-  #    context: .
-  #    target: dependencies
-  #  ports:
-  #    - "3333:3333"
-  #    - "8080:8080"
-  #  env_file:
-  #    - .env
-  #  volumes:
-  #    - ./:/home/node/app
-  #  command: dumb-init node ace serve --watch --encore-args="--host 0.0.0.0 --port 8080" --node-args="--inspect=0.0.0.0"
