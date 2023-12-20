@@ -14,7 +14,6 @@ import ReportBalances from '../templates/ReportBalances';
 import ReportForecast from '../templates/ReportForecast';
 import { calculateBudget } from '../../CategoryBudget';
 import { Link } from 'react-router-dom';
-import PageRoot from '../atoms/PageRoot';
 import BalancesGraph from '../templates/BalancesGraph';
 import AccountSelect from '../molecules/AccountSelect';
 import Account from '../../interfaces/Account';
@@ -99,7 +98,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <PageRoot>
+    <>
       <CategoryBudgetContext.Provider value={reportCategories ?? []}>
         <Stack direction="row" alignItems="baseline" justifyContent="space-between">
           <h1>Dashboard</h1>
@@ -162,6 +161,6 @@ export default function DashboardPage() {
           </Grid>
         </Grid>
       </CategoryBudgetContext.Provider>
-    </PageRoot>
+    </>
   );
 }

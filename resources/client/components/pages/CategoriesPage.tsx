@@ -1,18 +1,16 @@
 import React from 'react';
 import CategoriesList from '../templates/CategoriesList';
 import IsFetching from '../atoms/IsFetching';
-import PageRoot from '../atoms/PageRoot';
 import Category from 'resources/client/interfaces/Category';
 import { useQuery, useQueryClient } from 'react-query';
 import { useFetch } from '../../Utils';
 
-const loadCategories = () => {
-  return useFetch<Category[]>('/categories').then((data) =>
-    data.map((x) => ({
-      ...x,
-      dueDate: x.dueDate ? new Date(x.dueDate) : null,
-    }))
-  );
+const loadCategories = async () => {
+  const data = await useFetch<Category[]>('/categories');
+  return data.map((x) => ({
+    ...x,
+    dueDate: x.dueDate ? new Date(x.dueDate) : null,
+  }));
 };
 
 export default function CategoriesPage() {
@@ -25,11 +23,14 @@ export default function CategoriesPage() {
   } = useQuery<Category[], Error>('categories', loadCategories);
 
   return (
-    <PageRoot>
+    <>
       <h1>Categories</h1>
       <IsFetching isFetching={isLoading} error={error}>
-        <CategoriesList categories={categories!!} onCategoryCreated={() => queryClient.invalidateQueries(['categories'])} />
+        <CategoriesList
+          categories={categories!!}
+          onCategoryCreated={() => queryClient.invalidateQueries(['categories'])}
+        />
       </IsFetching>
-    </PageRoot>
+    </>
   );
 }

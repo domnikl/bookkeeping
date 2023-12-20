@@ -96,7 +96,7 @@ export default function Layout() {
             </AppBar>
           </Box>
 
-          <Container maxWidth={false}>
+          <Container sx={{ marginTop: '70px' }} maxWidth={false}>
             <Switch>
               <Route path="/payments">
                 <PaymentsPage />
