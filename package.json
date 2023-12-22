@@ -22,6 +22,7 @@
     "@types/jest": "^29.0.0",
     "@types/node": "^18.0.0",
     "@types/regenerator-runtime": "^0.13.5",
+    "@types/uuid": "^9.0.7",
     "adonis-preset-ts": "^2.1.0",
     "babel-core": "^6.26.3",
     "babel-jest": "^29.0.0",

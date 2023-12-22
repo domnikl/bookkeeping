@@ -6,4 +6,5 @@ export default interface Category {
   isActive: boolean;
   every: null | number;
   parent: null | string;
+  group: null | string;
 }

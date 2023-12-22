@@ -26,9 +26,9 @@ export default function CategoriesList(props: CategoriesListProps) {
     });
   };
 
-    const handleCloseSetupCategory = () => {
-      setEditingCategory(null);
-    };
+  const handleCloseSetupCategory = () => {
+    setEditingCategory(null);
+  };
 
   return (
     <Stack spacing={1}>
@@ -57,6 +57,12 @@ export default function CategoriesList(props: CategoriesListProps) {
                       <Typography sx={{ fontSize: 12 }} color="text.secondary" component="div">
                         {category.parent}
                       </Typography>
+
+                      {category.group && (
+                        <Typography sx={{ fontSize: 12 }} color="text.secondary" component="div">
+                          ({category.group})
+                        </Typography>
+                      )}
                     </Stack>
 
                     <AmountChip amount={category.expectedAmount / 100} />
@@ -69,7 +75,11 @@ export default function CategoriesList(props: CategoriesListProps) {
                   ) : null}
                 </Stack>
 
-                <IconButton sx={{ flexGrow: 1 }} size="small" onClick={() => setEditingCategory(category)}>
+                <IconButton
+                  sx={{ flexGrow: 1 }}
+                  size="small"
+                  onClick={() => setEditingCategory(category)}
+                >
                   <Edit fontSize="inherit" />
                 </IconButton>
               </Stack>

@@ -15,8 +15,12 @@ Route.get('categories', async () => {
   return CategoryModel.query().orderBy('summary');
 });
 
-Route.get('categories/parents', async() => {
+Route.get('categories/parents', async () => {
   return CategoryModel.query().whereNotNull('parent').distinct('parent').orderBy('parent');
+});
+
+Route.get('categories/groups', async () => {
+  return CategoryModel.query().whereNotNull('group').distinct('group').orderBy('group');
 });
 
 Route.post('close-month/:date', async ({ request }) => {

@@ -22,7 +22,11 @@ import Category from 'resources/client/interfaces/Category';
 import { useQuery } from 'react-query';
 
 const loadParents = () => {
-  return useFetch<Array<string>>('/categories/parents');
+  return useFetch<Array<Category>>('/categories/parents');
+};
+
+const loadGroups = () => {
+  return useFetch<Array<Category>>('/categories/groups');
 };
 
 type SetupCategoryModalProps = {
@@ -37,14 +41,11 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
   const [amount, setAmount] = useState<number>(10);
   const [dueDate, setDueDate] = useState<Date | null>(new Date());
   const [parent, setParent] = useState<string>('');
+  const [group, setGroup] = useState<string>('');
   const [isActive, setIsActive] = useState<boolean>(true);
 
-  let existingParents: Array<string> = [];
-  const { data: parents } = useQuery<Array<string>>('parents', loadParents);
-
-  if (parents !== undefined) {
-    existingParents = parents.map((e) => e ?? '');
-  }
+  const { data: parents } = useQuery<Array<Category>>('parents', loadParents);
+  const { data: groups } = useQuery<Array<Category>>('groups', loadGroups);
 
   useEffect(() => {
     setSummary(props.category?.summary ?? '');
@@ -52,8 +53,15 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
     setEvery(props.category?.every ?? 1);
     setDueDate(props.category?.dueDate ?? null);
     setParent(props.category?.parent ?? '');
+    setGroup(props.category?.group ?? '');
     setIsActive(props.category?.isActive ?? false);
   }, [props.category]);
+
+  useEffect(() => {
+    if (every === 0) {
+      setDueDate(null);
+    }
+  }, [every]);
 
   const handleClose = () => {
     props.onClose();
@@ -68,6 +76,7 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
       dueDate: dueDate,
       isActive: isActive,
       parent: parent ?? null,
+      group: group ?? null,
     });
   };
 
@@ -143,9 +152,31 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
                   onChange={(e) => setParent(e.target.value)}
                 />
               )}
-              options={existingParents ?? []}
+              options={parents?.map((e: Category) => e.parent ?? '') ?? []}
               onInputChange={(_, newValue: string) => setParent(newValue)}
               value={parent}
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <Autocomplete
+              freeSolo
+              selectOnFocus
+              clearOnBlur
+              handleHomeEndKeys
+              id="group"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  key={group}
+                  label="Group"
+                  variant="outlined"
+                  onChange={(e) => setGroup(e.target.value)}
+                />
+              )}
+              options={groups?.map((e: Category) => e.group ?? '') ?? []}
+              onInputChange={(_, newValue: string) => setGroup(newValue)}
+              value={group}
             />
           </FormControl>
 

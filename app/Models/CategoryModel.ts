@@ -25,6 +25,9 @@ export default class CategoryModel extends BaseModel {
   @column()
   public parent: null | string;
 
+  @column()
+  public group: null | string;
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
 

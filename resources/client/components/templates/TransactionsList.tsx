@@ -32,8 +32,9 @@ type TransactionsListProps = {
 };
 
 export default function TransactionsList(props: TransactionsListProps) {
-  const [transactionToSetupCategory, setTransactionToSetupCategory] =
-    useState<null | Category>(null);
+  const [transactionToSetupCategory, setTransactionToSetupCategory] = useState<null | Category>(
+    null
+  );
   const [transactionToApply, setTransactionToApply] = useState<null | Transaction>(null);
 
   const queryClient = useQueryClient();
@@ -64,6 +65,7 @@ export default function TransactionsList(props: TransactionsListProps) {
       expectedAmount: transaction.amount,
       dueDate: transaction.bookingDate,
       parent: null,
+      group: null,
       isActive: true,
       every: null,
     });
