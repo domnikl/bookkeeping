@@ -12,10 +12,9 @@ import Payment from 'resources/client/interfaces/Payment';
 import { v4 as uuidv4 } from 'uuid';
 import { useQuery, useQueryClient } from 'react-query';
 
-const loadTransactions = () => {
-  return useFetch<Transaction[]>('/incoming-payments').then((data) =>
-    data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }))
-  );
+const loadTransactions = async () => {
+  let data = await useFetch<Transaction[]>('/transactions');
+  return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
 };
 
 const applyCategory = (category: Category) => {
@@ -39,7 +38,7 @@ export default function TransactionsList(props: TransactionsListProps) {
 
   const queryClient = useQueryClient();
   const { isLoading, data: transactions } = useQuery<Transaction[], Error>(
-    'incoming-payments',
+    'transactions',
     loadTransactions
   );
 
@@ -54,8 +53,7 @@ export default function TransactionsList(props: TransactionsListProps) {
   const handleSubmitApply = (payment: Payment) => {
     applyPayment(payment).then(() => {
       props.onTransactionApplied(payment);
-      queryClient.invalidateQueries(['incoming-payments']);
-      setTransactionToApply(null);
+      queryClient.invalidateQueries(['transactions']).then(() => setTransactionToApply(null));
     });
   };
 

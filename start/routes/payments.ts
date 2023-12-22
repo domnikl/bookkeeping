@@ -5,7 +5,7 @@ import TransactionModel from 'App/Models/TransactionModel';
 import { sumPaymentsOfTransaction } from 'Database/payments';
 
 Route.get('payments', async () => {
-  return await PaymentModel.query()
+  return PaymentModel.query()
     .orderBy('bookingDate', 'desc')
     .preload('category')
     .preload('transaction')
@@ -23,7 +23,7 @@ Route.post('payments', async ({ request, response }) => {
     const transaction = await (await TransactionModel.findOrFail(payment.transactionId)).useTransaction(trx);
     const sumOfPayments = await sumPaymentsOfTransaction(payment.transactionId);
 
-    // only ACK if all of the amount was "spent" in payments
+    // only ACK if all the amount was "spent" in payments
     if (sumOfPayments == transaction.amount) {
       transaction.ack = true;
       await transaction.save();

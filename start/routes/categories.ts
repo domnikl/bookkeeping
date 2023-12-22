@@ -12,11 +12,11 @@ Route.post('categories', async ({ request }) => {
 });
 
 Route.get('categories', async () => {
-  return await CategoryModel.query().orderBy('summary');
+  return CategoryModel.query().orderBy('summary');
 });
 
 Route.get('categories/parents', async() => {
-  return await CategoryModel.query().whereNotNull('parent').distinct('parent').orderBy('parent')
+  return CategoryModel.query().whereNotNull('parent').distinct('parent').orderBy('parent');
 });
 
 Route.post('close-month/:date', async ({ request }) => {

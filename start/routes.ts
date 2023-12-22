@@ -21,7 +21,7 @@
 import Route from '@ioc:Adonis/Core/Route';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 
-import './routes/incoming-payments';
+import './routes/transactions';
 import './routes/payments';
 import './routes/categories';
 import './routes/reports';

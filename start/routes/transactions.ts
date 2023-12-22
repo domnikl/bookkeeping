@@ -2,7 +2,7 @@ import Route from '@ioc:Adonis/Core/Route';
 import TransactionModel from 'App/Models/TransactionModel';
 import { sumPaymentsOfTransaction } from 'Database/payments';
 
-Route.get('incoming-payments', async () => {
+Route.get('transactions', async () => {
   const transactions = await TransactionModel.query()
     .where('ack', false)
     .orderBy('bookingDate', 'desc')
