@@ -1,14 +1,17 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
 import { ChartData, ChartDataset, ChartOptions } from 'chart.js';
 import Balance, { BalancesMap } from '../../interfaces/Balance';
 import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
-import { CategoryBudgetContext } from '../pages/DashboardPage';
 
 import { Chart as ChartJS, registerables } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import Account from 'resources/client/interfaces/Account';
+import { useQuery } from 'react-query';
+import { formatDate, useFetch } from '../../Utils';
+import { format } from 'date-fns';
+import { calculateBudget } from '../../CategoryBudget';
 ChartJS.register(...registerables);
 
 function isWorkDay(date: Date): boolean {
@@ -206,18 +209,51 @@ const balancesToGraphData = (
 };
 
 type BalancesGraphProps = {
-  isFetching: boolean;
-  balances: BalancesMap;
   account: Account;
 };
 
+const loadBalances = (iban: string, from: Date, to: Date) => {
+  return useFetch<BalancesMap>(
+    `/balances/${iban}/${format(from, 'yyyy-MM-dd')}/${format(to, 'yyyy-MM-dd')}`
+  );
+};
+
+const loadReportCategories = (from: Date, to: Date) => {
+  return useFetch<CategoryBudget[]>('/reports/' + formatDate(from) + '/' + formatDate(to)).then(
+    (data) =>
+      calculateBudget(
+        data.map((x) => ({
+          ...x,
+          amount: x.amount !== null ? parseInt(x.amount?.toString()) : null,
+          expectedAmount: parseInt(x.expectedAmount.toString()),
+          dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
+        }))
+      )
+  );
+};
+
+const d = new Date();
+d.setMonth(d.getMonth() - 12);
+const startDate = beginOfMonth(d);
+
 export default function BalancesGraph(props: BalancesGraphProps) {
-  const categoryBudgets = useContext<CategoryBudget[]>(CategoryBudgetContext);
+  const from = beginOfMonth(new Date());
+  const to = endOfMonth(new Date());
   const labels = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
+
+  const { data: balances, isLoading: isFetching } = useQuery<BalancesMap, Error>(
+    ['balances', props.account, startDate],
+    () => loadBalances(props.account?.iban ?? '', startDate, new Date())
+  );
+
+  const { isLoading: isLoadingReportCategories, data: categoryBudgets } = useQuery<
+    CategoryBudget[],
+    Error
+  >('report-categories', () => loadReportCategories(from, to));
 
   const data: ChartData<'line'> = {
     labels,
-    datasets: balancesToGraphData(props.account, props.balances, categoryBudgets),
+    datasets: balancesToGraphData(props.account, balances ?? {}, categoryBudgets ?? []),
   };
 
   const options: ChartOptions<'line'> = {
@@ -233,8 +269,8 @@ export default function BalancesGraph(props: BalancesGraphProps) {
   };
 
   return (
-    <IsFetching isFetching={props.isFetching}>
-      <Empty items={props.balances} text="There is not yet enough data.">
+    <IsFetching isFetching={isFetching || isLoadingReportCategories}>
+      <Empty items={balances ?? null} text="There is not yet enough data.">
         <Line data={data} options={options} />
       </Empty>
     </IsFetching>

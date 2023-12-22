@@ -17,11 +17,9 @@ import { Link } from 'react-router-dom';
 import BalancesGraph from '../templates/BalancesGraph';
 import AccountSelect from '../molecules/AccountSelect';
 import Account from '../../interfaces/Account';
-import { BalancesMap } from '../../interfaces/Balance';
 import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
 import Category from 'resources/client/interfaces/Category';
 import WrapUpMonth from '../templates/WrapUpMonth';
-import { format } from 'date-fns';
 import { useQuery } from 'react-query';
 import { queryClient } from '../../App';
 
@@ -34,12 +32,6 @@ const loadAccounts = () => {
 const loadCategories = () => {
   return useFetch<Category[]>('/categories').then((data) =>
     data.map((x) => ({ ...x, dueDate: x.dueDate ? new Date(x.dueDate) : null }))
-  );
-};
-
-const loadBalances = (iban: string, from: Date, to: Date) => {
-  return useFetch<BalancesMap>(
-    `/balances/${iban}/${format(from, 'yyyy-MM-dd')}/${format(to, 'yyyy-MM-dd')}`
   );
 };
 
@@ -61,10 +53,6 @@ export default function DashboardPage() {
   const from = beginOfMonth(new Date());
   const to = endOfMonth(new Date());
 
-  const d = new Date();
-  d.setMonth(d.getMonth() - 12);
-  const balancesGraphStartDate = beginOfMonth(d);
-
   const { data: categories } = useQuery<Category[]>('categories', loadCategories);
 
   const { data: accounts } = useQuery<Account[], Error>('accounts', loadAccounts);
@@ -76,14 +64,6 @@ export default function DashboardPage() {
   const [accountForBalances, setAccountForBalances] = useState<Account | null>(
     getLocalStorage<Account | null>('accountForBalances', () => null)
   );
-
-  let balances: BalancesMap | undefined = {};
-  let isFetchingBalances = false;
-
-  ({ data: balances, isLoading: isFetchingBalances } = useQuery<BalancesMap, Error>(
-    ['balances', accountForBalances, balancesGraphStartDate],
-    () => loadBalances(accountForBalances?.iban ?? '', balancesGraphStartDate, new Date())
-  ));
 
   const refreshReportCategories = () => {
     queryClient.invalidateQueries('report-categories');
@@ -120,7 +100,7 @@ export default function DashboardPage() {
                 />
               </Stack>
 
-              {!!balances && accountForBalances && <BalancesGraph account={accountForBalances} isFetching={isFetchingBalances} balances={balances ?? []} />}
+              {accountForBalances && <BalancesGraph account={accountForBalances} />}
             </Stack>
             <Stack>
               <Stack direction="row" justifyContent="space-between" alignContent="baseline">
