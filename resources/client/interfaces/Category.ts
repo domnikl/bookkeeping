@@ -7,4 +7,5 @@ export default interface Category {
   every: null | number;
   parent: null | string;
   group: null | string;
+  account: null | string;
 }

@@ -66,6 +66,7 @@ export default function TransactionsList(props: TransactionsListProps) {
       dueDate: transaction.bookingDate,
       parent: null,
       group: null,
+      account: transaction.accountIban,
       isActive: true,
       every: null,
     });

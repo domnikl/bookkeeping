@@ -48,7 +48,7 @@ export function calculateBudget(categories: CategoryBudget[]): CategoryBudget[] 
     let remaining = calculateRemaining(expected, actual);
     let percentage = 0;
 
-    if (expected != 0) {
+    if (expected !== 0) {
       percentage = Math.floor((100 / Math.abs(expected)) * Math.abs(actual));
     }
 

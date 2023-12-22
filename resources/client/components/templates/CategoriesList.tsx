@@ -64,19 +64,22 @@ export default function CategoriesList(props: CategoriesListProps) {
                         </Typography>
                       )}
                     </Stack>
-
-                    <AmountChip amount={category.expectedAmount / 100} />
                   </Stack>
 
-                  {category.dueDate != null ? (
+                  {category.dueDate !== null ? (
                     <Typography sx={{ fontSize: 12 }} color="text.secondary" gutterBottom>
                       {formatDate(category.dueDate)}, every {category.every} month
                     </Typography>
                   ) : null}
+                  <Typography sx={{ fontSize: 12 }} color="text.secondary" component="div">
+                    {category.account}
+                  </Typography>
                 </Stack>
 
+                <AmountChip amount={category.expectedAmount / 100} />
+
                 <IconButton
-                  sx={{ flexGrow: 1 }}
+                  sx={{ flexGrow: 1, height: '56px', width: '56px' }}
                   size="small"
                   onClick={() => setEditingCategory(category)}
                 >

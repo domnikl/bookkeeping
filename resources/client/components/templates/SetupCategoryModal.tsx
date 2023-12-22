@@ -20,6 +20,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { removeTimeFromDate, useFetch } from '../../Utils';
 import Category from 'resources/client/interfaces/Category';
 import { useQuery } from 'react-query';
+import Account from 'resources/client/interfaces/Account';
 
 const loadParents = () => {
   return useFetch<Array<Category>>('/categories/parents');
@@ -27,6 +28,10 @@ const loadParents = () => {
 
 const loadGroups = () => {
   return useFetch<Array<Category>>('/categories/groups');
+};
+
+const loadAccounts = () => {
+  return useFetch<Array<Account>>('/accounts');
 };
 
 type SetupCategoryModalProps = {
@@ -42,10 +47,12 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
   const [dueDate, setDueDate] = useState<Date | null>(new Date());
   const [parent, setParent] = useState<string>('');
   const [group, setGroup] = useState<string>('');
+  const [account, setAccount] = useState<string>('');
   const [isActive, setIsActive] = useState<boolean>(true);
 
   const { data: parents } = useQuery<Array<Category>>('parents', loadParents);
   const { data: groups } = useQuery<Array<Category>>('groups', loadGroups);
+  const { data: accounts } = useQuery<Array<Account>>('accounts', loadAccounts);
 
   useEffect(() => {
     setSummary(props.category?.summary ?? '');
@@ -54,6 +61,7 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
     setDueDate(props.category?.dueDate ?? null);
     setParent(props.category?.parent ?? '');
     setGroup(props.category?.group ?? '');
+    setAccount(props.category?.account ?? '');
     setIsActive(props.category?.isActive ?? false);
   }, [props.category]);
 
@@ -77,6 +85,7 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
       isActive: isActive,
       parent: parent ?? null,
       group: group ?? null,
+      account: account,
     });
   };
 
@@ -110,18 +119,19 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
           </FormControl>
 
           <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">interval</InputLabel>
+            <InputLabel id="account-label">account</InputLabel>
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={every}
-              label="Interval"
-              onChange={(e) => handleUpdateOnEvery(e.target.value)}
+              labelId="account-label"
+              id="account"
+              value={account}
+              label="Account"
+              onChange={(e) => setAccount(e.target.value)}
             >
-              <MenuItem value={0}>never</MenuItem>
-              <MenuItem value={1}>monthly</MenuItem>
-              <MenuItem value={3}>quarterly</MenuItem>
-              <MenuItem value={12}>yearly</MenuItem>
+              {accounts?.map((a) => (
+                <MenuItem key={a.iban} value={a.iban}>
+                  {a.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -178,6 +188,22 @@ export default function SetupCategoryModal(props: SetupCategoryModalProps) {
               onInputChange={(_, newValue: string) => setGroup(newValue)}
               value={group}
             />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="interval-label">interval</InputLabel>
+            <Select
+              labelId="interval-label"
+              id="interval"
+              value={every}
+              label="Interval"
+              onChange={(e) => handleUpdateOnEvery(e.target.value)}
+            >
+              <MenuItem value={0}>never</MenuItem>
+              <MenuItem value={1}>monthly</MenuItem>
+              <MenuItem value={3}>quarterly</MenuItem>
+              <MenuItem value={12}>yearly</MenuItem>
+            </Select>
           </FormControl>
 
           {every ? (

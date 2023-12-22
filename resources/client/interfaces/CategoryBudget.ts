@@ -1,6 +1,7 @@
 export default interface CategoryBudget {
   id: string;
   summary: string;
+  account: string;
   expectedAmount: number;
   amount: null | number;
   every: null | number;

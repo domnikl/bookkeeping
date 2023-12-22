@@ -49,9 +49,9 @@ const loadReportCategories = (from: Date, to: Date) => {
       calculateBudget(
         data.map((x) => ({
           ...x,
-          amount: x.amount != null ? parseInt(x.amount?.toString()) : null,
+          amount: x.amount !== null ? parseInt(x.amount?.toString()) : null,
           expectedAmount: parseInt(x.expectedAmount.toString()),
-          dueDate: x.dueDate != null ? new Date(x.dueDate) : null,
+          dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
         }))
       )
   );
@@ -120,7 +120,7 @@ export default function DashboardPage() {
                 />
               </Stack>
 
-              {!!balances && <BalancesGraph isFetching={isFetchingBalances} balances={balances ?? []} />}
+              {!!balances && accountForBalances && <BalancesGraph account={accountForBalances} isFetching={isFetchingBalances} balances={balances ?? []} />}
             </Stack>
             <Stack>
               <Stack direction="row" justifyContent="space-between" alignContent="baseline">

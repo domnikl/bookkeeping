@@ -73,13 +73,15 @@ export default function ApplyTransactionModal(props: ApplyIncomingTransactionMod
               onChange={(e) => setCategoryId(e.target.value)}
             >
               <MenuItem value=""></MenuItem>
-              {props.categories.map((r: Category) => (
-                <MenuItem value={r.id} key={r.id}>
-                  <Stack direction="row" alignContent="center" justifyContent="space-between">
-                    {r.summary} {!r.isActive && <WarningIcon />}
-                  </Stack>
-                </MenuItem>
-              ))}
+              {props.categories
+                .filter((e) => e.account === props.transaction?.accountIban)
+                .map((r: Category) => (
+                  <MenuItem value={r.id} key={r.id}>
+                    <Stack direction="row" alignContent="center" justifyContent="space-between">
+                      {r.summary} {!r.isActive && <WarningIcon />}
+                    </Stack>
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
 

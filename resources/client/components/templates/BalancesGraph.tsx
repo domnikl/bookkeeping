@@ -8,6 +8,7 @@ import { CategoryBudgetContext } from '../pages/DashboardPage';
 
 import { Chart as ChartJS, registerables } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import Account from 'resources/client/interfaces/Account';
 ChartJS.register(...registerables);
 
 function isWorkDay(date: Date): boolean {
@@ -56,7 +57,12 @@ const sumExpected = (budget: CategoryBudget[]): number => {
   return budget.reduce((previous, current) => previous + (current.expectedAmount ?? 0), 0) / 100;
 };
 
-const buildPrediction = (balances: BalancesMap, categoryBudget: CategoryBudget[]) => {
+const buildPrediction = (
+  account: Account,
+  balances: BalancesMap,
+  categoryBudget: CategoryBudget[]
+) => {
+  categoryBudget = categoryBudget.filter((c) => c.account === account.iban);
   const months = Object.keys(balances);
 
   if (months.length === 0) return [];
@@ -94,7 +100,13 @@ const buildPrediction = (balances: BalancesMap, categoryBudget: CategoryBudget[]
   });
 };
 
-const buildPredictionNextMonth = (balance: number, categoryBudget: CategoryBudget[]) => {
+const buildPredictionNextMonth = (
+  account: Account,
+  balance: number,
+  categoryBudget: CategoryBudget[]
+) => {
+  categoryBudget = categoryBudget.filter((c) => c.account === account.iban);
+
   const start = beginNextMonth(new Date());
 
   const withoutDueDate = categoryBudget.filter((c) => c.dueDate === null);
@@ -136,6 +148,7 @@ const colors = [
 ];
 
 const balancesToGraphData = (
+  account: Account,
   balances: BalancesMap,
   categoryBudget: CategoryBudget[]
 ): ChartDataset<'line'>[] => {
@@ -161,7 +174,7 @@ const balancesToGraphData = (
     }
   );
 
-  const predictedThisMonth = buildPrediction(balances, categoryBudget);
+  const predictedThisMonth = buildPrediction(account, balances, categoryBudget);
   let predictions: ChartDataset<'line'> = {
     label: 'prediction',
     data: predictedThisMonth,
@@ -180,7 +193,7 @@ const balancesToGraphData = (
 
     existingValues.unshift({
       label: 'prediction',
-      data: buildPredictionNextMonth(predictedThisMonth[last], categoryBudget),
+      data: buildPredictionNextMonth(account, predictedThisMonth[last], categoryBudget),
       fill: false,
       backgroundColor: colors[colors.length - 1],
       borderColor: colors[colors.length - 1],
@@ -195,6 +208,7 @@ const balancesToGraphData = (
 type BalancesGraphProps = {
   isFetching: boolean;
   balances: BalancesMap;
+  account: Account;
 };
 
 export default function BalancesGraph(props: BalancesGraphProps) {
@@ -203,7 +217,7 @@ export default function BalancesGraph(props: BalancesGraphProps) {
 
   const data: ChartData<'line'> = {
     labels,
-    datasets: balancesToGraphData(props.balances, categoryBudgets),
+    datasets: balancesToGraphData(props.account, props.balances, categoryBudgets),
   };
 
   const options: ChartOptions<'line'> = {

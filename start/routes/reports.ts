@@ -23,7 +23,7 @@ Route.get('reports/:from/:to', async ({ request }) => {
   const to = request.params().to;
 
   const report = await Database.rawQuery(
-    `SELECT c.id, c.summary, c.expected_amount AS "expectedAmount", c.every, c.due_date as "dueDate", x.amount
+    `SELECT c.id, c.account, c.summary, c.expected_amount AS "expectedAmount", c.every, c.due_date as "dueDate", x.amount
   FROM categories c
   LEFT JOIN (SELECT p.category_id, SUM(p.amount) AS amount
       FROM payments p
