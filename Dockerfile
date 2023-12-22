@@ -7,12 +7,10 @@ WORKDIR /home/node/app
 USER node
 RUN mkdir tmp
 
-FROM base AS dependencies
+FROM base AS build
 COPY --chown=node:node ./package*.json ./
 RUN npm ci
 COPY --chown=node:node . .
-
-FROM dependencies AS build
 RUN echo "" > .env && node ace build --production
 
 FROM base AS production
