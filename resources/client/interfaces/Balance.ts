@@ -6,5 +6,11 @@ export default interface Balance {
 }
 
 export interface BalancesMap {
-  [key: string]: Balance[]
+  [key: string]: Balance[];
+}
+
+export interface BalancesForGraph {
+  label: string;
+  prediction: boolean;
+  data: Array<number | null>;
 }

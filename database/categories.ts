@@ -47,3 +47,76 @@ export async function wrapUpMonth(date: string) {
     await Promise.all(promises);
   });
 }
+
+export interface BudgetItem {
+  account: string;
+  summary: string;
+  every: number | null;
+  dueDate: Date | null;
+  expectedAmount: number;
+  actualAmount: number;
+  remainingAmount: number;
+  percentage: number;
+}
+
+export async function budgets(from: Date, to: Date): Promise<BudgetItem[]> {
+  const report = await Database.rawQuery(
+    `WITH amounts AS (
+      SELECT c.id,
+                        c.account,
+                        c.summary,
+                        c.every,
+                        c.due_date,
+                        c.expected_amount,
+                        coalesce(x.amount, 0) AS actual_amount
+                 FROM categories c
+                          LEFT JOIN (SELECT p.category_id, SUM(p.amount) AS amount
+                                     FROM payments p
+                                     WHERE booking_date::date >= date(?)
+                                       AND booking_date::date <= date(?)
+                                     GROUP BY p.category_id) AS x ON x.category_id = c.id
+                 WHERE ((due_date::date >= date(?) AND due_date::date <= date(?)) OR
+                        due_date IS NULL)
+                   AND c.is_active = true),
+    with_remaining AS (
+      SELECT account, summary, every, due_date, expected_amount, actual_amount,
+       CASE
+        WHEN expected_amount = 0 THEN 0
+        WHEN expected_amount = actual_amount THEN 0
+        WHEN expected_amount > 0 THEN CASE
+            WHEN actual_amount > expected_amount THEN 0
+            ELSE expected_amount - actual_amount
+        END
+        ELSE CASE
+            WHEN actual_amount < expected_amount THEN NULL -- spending exceeded
+            WHEN actual_amount > 0 THEN CASE
+                WHEN actual_amount + expected_amount > 0 THEN 0 -- get money back
+                ELSE expected_amount + actual_amount
+            END
+            ELSE expected_amount - actual_amount
+        END
+       END AS remaining
+      FROM amounts
+      )
+
+      SELECT account, summary, every, due_date AS "dueDate", expected_amount AS "expectedAmount", actual_amount AS "actualAmount", remaining AS "remainingAmount", CASE
+          WHEN expected_amount = actual_amount THEN 100
+          WHEN expected_amount != 0 THEN floor((100.0 / abs(expected_amount)) * abs(actual_amount))
+          ELSE 0
+      END AS percentage
+      FROM with_remaining
+      ORDER BY summary`,
+    [from, to, from, to]
+  );
+
+  return report.rows.map((e) => {
+    return {
+      ...e,
+      actualAmount: parseInt(e.actualAmount),
+      expectedAmount: parseInt(e.expectedAmount),
+      remainingAmount: parseInt(e.remainingAmount),
+      percentage: parseFloat(e.percentage),
+      dueDate: e.dueDate !== null ? new Date(e.dueDate) : null,
+    };
+  });
+}

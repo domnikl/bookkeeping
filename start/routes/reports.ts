@@ -1,5 +1,6 @@
 import Route from '@ioc:Adonis/Core/Route';
 import Database from '@ioc:Adonis/Lucid/Database';
+import { budgets } from 'Database/categories';
 
 Route.get('reports/balances', async () => {
   const report = await Database.rawQuery(
@@ -19,21 +20,8 @@ Route.get('reports/balances', async () => {
 });
 
 Route.get('reports/:from/:to', async ({ request }) => {
-  const from = request.params().from;
-  const to = request.params().to;
+  const from = new Date(request.params().from);
+  const to = new Date(request.params().to);
 
-  const report = await Database.rawQuery(
-    `SELECT c.id, c.account, c.summary, c.expected_amount AS "expectedAmount", c.every, c.due_date as "dueDate", x.amount
-  FROM categories c
-  LEFT JOIN (SELECT p.category_id, SUM(p.amount) AS amount
-      FROM payments p
-      WHERE booking_date::date >= ? AND booking_date::date <= ?
-      GROUP BY p.category_id) AS x ON x.category_id = c.id
-  WHERE ((due_date::date >= ? AND due_date::date <= ?) OR due_date IS NULL)
-  AND c.is_active = true
-  ORDER BY summary`,
-    [from, to, from, to]
-  );
-
-  return report.rows;
+  return budgets(from, to);
 });

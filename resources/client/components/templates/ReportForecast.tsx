@@ -23,7 +23,7 @@ const sumTotal = (s: number, item: CategoryBudget, _a, _b) => {
 };
 
 const sumRemaining = (s: number, item: CategoryBudget, _a, _b) => {
-  return s + (item.remaining ?? 0);
+  return s + (item.remainingAmount ?? 0);
 };
 
 const sumFilteredBy = (
@@ -41,13 +41,13 @@ export default function ReportForecast(props: ReportForecastProps) {
 
   const expensesRemaining = sumFilteredBy(
     categories,
-    (x) => x.remaining && x.remaining < 0,
+    (x) => x.remainingAmount && x.remainingAmount < 0,
     sumRemaining
   );
 
   const earningsRemainig = sumFilteredBy(
     categories,
-    (x) => x.remaining && x.remaining > 0,
+    (x) => x.remainingAmount && x.remainingAmount > 0,
     sumRemaining
   );
 

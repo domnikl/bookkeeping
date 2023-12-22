@@ -13,9 +13,9 @@ import { CategoryBudgetContext } from '../pages/DashboardPage';
 function remainingColumn(c: CategoryBudget) {
   let contents: any = null;
 
-  if (c.remaining == 0) {
+  if (c.remainingAmount == 0) {
     contents = <Check />;
-  } else if (c.remaining == null) {
+  } else if (c.remainingAmount == null) {
     contents = (
       <Stack direction="row" justifyContent="space-between">
         <Warning />
@@ -23,10 +23,14 @@ function remainingColumn(c: CategoryBudget) {
       </Stack>
     );
   } else {
-    contents = <AmountChip amount={c.remaining / 100} />;
+    contents = <AmountChip amount={c.remainingAmount / 100} />;
   }
 
-  return <TableCell align="right" key={"budget-remaining-" + c.id}>{contents}</TableCell>;
+  return (
+    <TableCell align="right" key={'budget-remaining-' + c.summary}>
+      {contents}
+    </TableCell>
+  );
 }
 
 type ReportByCategoryProps = {
@@ -36,10 +40,14 @@ type ReportByCategoryProps = {
 type LocalStorageParams = {
   sortOrder: string;
   sortKey: string;
-}
+};
 
 export default function ReportByCategory(props: ReportByCategoryProps) {
-  const [sortParams, setSortParams] = useState<LocalStorageParams>(getLocalStorage<LocalStorageParams>('reportByCategorySort', () => { return { sortOrder: 'asc', sortKey: 'summary' }}));
+  const [sortParams, setSortParams] = useState<LocalStorageParams>(
+    getLocalStorage<LocalStorageParams>('reportByCategorySort', () => {
+      return { sortOrder: 'asc', sortKey: 'summary' };
+    })
+  );
   const categoryBudgets = useContext<CategoryBudget[]>(CategoryBudgetContext);
 
   useEffect(() => {
@@ -60,13 +68,13 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
       numeric: true,
     },
     {
-      id: 'amount',
+      id: 'actualAmount',
       disablePadding: false,
       label: 'Actual',
       numeric: true,
     },
     {
-      id: 'remaining',
+      id: 'remainingAmount',
       disablePadding: false,
       label: 'Remaining',
       numeric: true,
@@ -81,7 +89,7 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
 
   const cells = [
     (c: CategoryBudget) => (
-      <TableCell key={'budget-summary-' + c.id}>
+      <TableCell key={'budget-summary-' + c.summary}>
         <Stack direction="column">
           {c.summary}
           <Typography sx={{ fontSize: 12 }} color="text.secondary">
@@ -91,18 +99,18 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
       </TableCell>
     ),
     (c: CategoryBudget) => (
-      <TableCell align="right" key={'budget-expected-' + c.id}>
+      <TableCell align="right" key={'budget-expected-' + c.summary}>
         <AmountChip amount={c.expectedAmount / 100} />
       </TableCell>
     ),
     (c: CategoryBudget) => (
-      <TableCell align="right" key={'budget-actual-' + c.id}>
-        <AmountChip amount={(c.amount ?? 0) / 100} />
+      <TableCell align="right" key={'budget-actual-' + c.summary}>
+        <AmountChip amount={(c.actualAmount ?? 0) / 100} />
       </TableCell>
     ),
     remainingColumn,
     (c: CategoryBudget) => (
-      <TableCell align="right" key={'budget-percentage-' + c.id}>
+      <TableCell align="right" key={'budget-percentage-' + c.summary}>
         <CircularProgressWithLabel value={c.percentage ?? 0.0} />
       </TableCell>
     ),

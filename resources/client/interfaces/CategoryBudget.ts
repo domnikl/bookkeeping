@@ -1,11 +1,10 @@
 export default interface CategoryBudget {
-  id: string;
   summary: string;
   account: string;
   expectedAmount: number;
-  amount: null | number;
+  actualAmount: number;
   every: null | number;
   dueDate: null | Date;
-  remaining: null | number;
+  remainingAmount: null | number;
   percentage: null | number;
 }

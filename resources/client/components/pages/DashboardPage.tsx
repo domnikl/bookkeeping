@@ -12,7 +12,6 @@ import {
 import ReportByCategory from '../templates/ReportByCategory';
 import ReportBalances from '../templates/ReportBalances';
 import ReportForecast from '../templates/ReportForecast';
-import { calculateBudget } from '../../CategoryBudget';
 import { Link } from 'react-router-dom';
 import BalancesGraph from '../templates/BalancesGraph';
 import AccountSelect from '../molecules/AccountSelect';
@@ -38,14 +37,10 @@ const loadCategories = () => {
 const loadReportCategories = (from: Date, to: Date) => {
   return useFetch<CategoryBudget[]>('/reports/' + formatDate(from) + '/' + formatDate(to)).then(
     (data) =>
-      calculateBudget(
-        data.map((x) => ({
-          ...x,
-          amount: x.amount !== null ? parseInt(x.amount?.toString()) : null,
-          expectedAmount: parseInt(x.expectedAmount.toString()),
-          dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
-        }))
-      )
+      data.map((x) => ({
+        ...x,
+        dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
+      }))
   );
 };
 

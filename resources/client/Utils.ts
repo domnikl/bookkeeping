@@ -43,3 +43,4 @@ export function getLocalStorage<T>(key: string, or: () => T): T {
 
   return JSON.parse(value) as T;
 }
+
