@@ -2,18 +2,15 @@ import { Edit, Warning } from '@mui/icons-material';
 import { Card, CardContent, IconButton, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import Category from 'resources/client/interfaces/Category';
-import { formatDate, usePostFetch } from '../../Utils';
+import { formatDate } from '../../Utils';
 import AmountChip from '../atoms/AmountChip';
 import Empty from '../molecules/Empty';
 import SetupCategoryModal from './SetupCategoryModal';
+import { applyCategory } from "../../api";
 
 type CategoriesListProps = {
   categories: Category[];
   onCategoryCreated: () => void;
-};
-
-const applyCategory = (category: Category) => {
-  return usePostFetch('/categories', category);
 };
 
 export default function CategoriesList(props: CategoriesListProps) {

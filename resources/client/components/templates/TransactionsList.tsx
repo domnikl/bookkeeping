@@ -1,6 +1,5 @@
 import { Stack } from '@mui/material';
 import React, { useState } from 'react';
-import { useFetch, usePostFetch } from '../../Utils';
 import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
 import ApplyTransactionModal from './ApplyTransactionModal';
@@ -11,19 +10,7 @@ import Category from 'resources/client/interfaces/Category';
 import Payment from 'resources/client/interfaces/Payment';
 import { v4 as uuidv4 } from 'uuid';
 import { useQuery, useQueryClient } from 'react-query';
-
-const loadTransactions = async () => {
-  let data = await useFetch<Transaction[]>('/transactions');
-  return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
-};
-
-const applyCategory = (category: Category) => {
-  return usePostFetch('/categories', category);
-};
-
-const applyPayment = (payment: Payment) => {
-  return usePostFetch('/payments', payment);
-};
+import { applyCategory, applyPayment, loadTransactions } from '../../api';
 
 type TransactionsListProps = {
   onCategoryCreated: (category: Category) => void;

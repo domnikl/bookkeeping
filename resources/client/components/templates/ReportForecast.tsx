@@ -13,8 +13,9 @@ import AmountChip from '../atoms/AmountChip';
 import IsFetching from '../atoms/IsFetching';
 import Empty from '../molecules/Empty';
 import Account from 'resources/client/interfaces/Account';
-import { beginOfMonth, endOfMonth, formatDate, useFetch } from "../../Utils";
-import { useQuery } from "react-query";
+import { beginOfMonth, endOfMonth } from '../../Utils';
+import { useQuery } from 'react-query';
+import { loadBudgets } from '../../api';
 
 type ReportForecastProps = {
   account: Account;
@@ -36,23 +37,13 @@ const sumFilteredBy = (
   return categories.filter(expression).reduce<number>(sum, 0);
 };
 
-const loadReportCategories = async (account: Account, from: Date, to: Date) => {
-  const data = await useFetch<CategoryBudget[]>(
-    '/reports/' + account.iban + '/' + formatDate(from) + '/' + formatDate(to)
-  );
-  return data.map((x) => ({
-    ...x,
-    dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
-  }));
-};
-
 export default function ReportForecast(props: ReportForecastProps) {
   const from = beginOfMonth(new Date());
   const to = endOfMonth(new Date());
 
   const { isLoading, data: categories } = useQuery<CategoryBudget[], Error>(
-    'report-categories',
-    () => loadReportCategories(props.account, from, to)
+    ['report-categories', props.account.iban],
+    () => loadBudgets(props.account, from, to)
   );
 
   const expensesTotal = sumFilteredBy(categories ?? [], (x) => x.expectedAmount < 0, sumTotal);
@@ -64,7 +55,7 @@ export default function ReportForecast(props: ReportForecastProps) {
     sumRemaining
   );
 
-  const earningsRemainig = sumFilteredBy(
+  const earningsRemaining = sumFilteredBy(
     categories ?? [],
     (x) => x.remainingAmount && x.remainingAmount > 0,
     sumRemaining
@@ -100,13 +91,13 @@ export default function ReportForecast(props: ReportForecastProps) {
               <TableRow>
                 <TableCell>Remaing</TableCell>
                 <TableCell align="right">
-                  <AmountChip amount={earningsRemainig / 100} />
+                  <AmountChip amount={earningsRemaining / 100} />
                 </TableCell>
                 <TableCell align="right">
                   <AmountChip amount={expensesRemaining / 100} />
                 </TableCell>
                 <TableCell align="right">
-                  <AmountChip amount={(expensesRemaining + earningsRemainig) / 100} />
+                  <AmountChip amount={(expensesRemaining + earningsRemaining) / 100} />
                 </TableCell>
               </TableRow>
             </TableBody>

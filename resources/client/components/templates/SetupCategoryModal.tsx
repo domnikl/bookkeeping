@@ -17,22 +17,11 @@ import React, { useEffect, useState } from 'react';
 import StyledModal from '../molecules/StyledModal';
 import { v4 as uuidv4 } from 'uuid';
 import { DatePicker } from '@mui/x-date-pickers';
-import { removeTimeFromDate, useFetch } from '../../Utils';
+import { removeTimeFromDate } from '../../Utils';
 import Category from 'resources/client/interfaces/Category';
 import { useQuery } from 'react-query';
 import Account from 'resources/client/interfaces/Account';
-
-const loadParents = () => {
-  return useFetch<Array<Category>>('/categories/parents');
-};
-
-const loadGroups = () => {
-  return useFetch<Array<Category>>('/categories/groups');
-};
-
-const loadAccounts = () => {
-  return useFetch<Array<Account>>('/accounts');
-};
+import { loadAccounts, loadGroups, loadParents } from '../../api';
 
 type SetupCategoryModalProps = {
   onClose: () => void;

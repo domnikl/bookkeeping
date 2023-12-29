@@ -3,15 +3,7 @@ import CategoriesList from '../templates/CategoriesList';
 import IsFetching from '../atoms/IsFetching';
 import Category from 'resources/client/interfaces/Category';
 import { useQuery, useQueryClient } from 'react-query';
-import { useFetch } from '../../Utils';
-
-const loadCategories = async () => {
-  const data = await useFetch<Category[]>('/categories');
-  return data.map((x) => ({
-    ...x,
-    dueDate: x.dueDate ? new Date(x.dueDate) : null,
-  }));
-};
+import { loadCategories } from '../../api';
 
 export default function CategoriesPage() {
   const queryClient = useQueryClient();

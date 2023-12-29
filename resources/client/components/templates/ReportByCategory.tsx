@@ -8,7 +8,6 @@ import {
   formatDate,
   getLocalStorage,
   setLocalStorage,
-  useFetch,
 } from '../../Utils';
 import AmountChip from '../atoms/AmountChip';
 import IsFetching from '../atoms/IsFetching';
@@ -18,16 +17,7 @@ import EnhancedTable, { HeadCell } from '../molecules/EnhancedTable';
 import { Link } from 'react-router-dom';
 import Account from '../../interfaces/Account';
 import { useQuery } from 'react-query';
-
-const loadReportCategories = async (account: Account, from: Date, to: Date) => {
-  const data = await useFetch<CategoryBudget[]>(
-    '/reports/' + account.iban + '/' + formatDate(from) + '/' + formatDate(to)
-  );
-  return data.map((x) => ({
-    ...x,
-    dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
-  }));
-};
+import { loadBudgets } from '../../api';
 
 function remainingColumn(c: CategoryBudget) {
   let contents: any;
@@ -72,8 +62,8 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
   const to = endOfMonth(new Date());
 
   const { isLoading, data: categoryBudgets } = useQuery<CategoryBudget[], Error>(
-    'report-categories',
-    () => loadReportCategories(props.account, from, to)
+    ['report-categories', props.account.iban],
+    () => loadBudgets(props.account, from, to)
   );
 
   useEffect(() => {

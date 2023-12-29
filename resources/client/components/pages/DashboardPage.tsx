@@ -1,7 +1,7 @@
 import { Button, Grid, Stack } from '@mui/material';
 import React, { useState } from 'react';
 import TransactionsList from '../templates/TransactionsList';
-import { getLocalStorage, setLocalStorage, useFetch } from '../../Utils';
+import { getLocalStorage, setLocalStorage } from '../../Utils';
 import ReportByCategory from '../templates/ReportByCategory';
 import ReportBalances from '../templates/ReportBalances';
 import ReportForecast from '../templates/ReportForecast';
@@ -13,15 +13,7 @@ import Category from 'resources/client/interfaces/Category';
 import WrapUpMonth from '../templates/WrapUpMonth';
 import { useQuery } from 'react-query';
 import { queryClient } from '../../App';
-
-const loadAccounts = () => {
-  return useFetch<Account[]>('/accounts');
-};
-
-const loadCategories = async () => {
-  const data = await useFetch<Category[]>('/categories');
-  return data.map((x) => ({ ...x, dueDate: x.dueDate ? new Date(x.dueDate) : null }));
-};
+import { loadCategories, loadAccounts } from '../../api';
 
 export default function DashboardPage() {
   const { data: categories } = useQuery<Category[]>('categories', loadCategories);

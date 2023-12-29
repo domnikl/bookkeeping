@@ -8,8 +8,7 @@ import { Chart as ChartJS, registerables } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import Account from 'resources/client/interfaces/Account';
 import { useQuery } from 'react-query';
-import { useFetch } from '../../Utils';
-import { format } from 'date-fns';
+import { loadBalances } from '../../api';
 ChartJS.register(...registerables);
 
 function removeTimeFromDate(date: Date): Date {
@@ -44,12 +43,6 @@ const colors = [
 
 type BalancesGraphProps = {
   account: Account;
-};
-
-const loadBalances = (iban: string, from: Date, to: Date) => {
-  return useFetch<BalancesForGraph[]>(
-    `/balances/${iban}/${format(from, 'yyyy-MM-dd')}/${format(to, 'yyyy-MM-dd')}`
-  );
 };
 
 const d = new Date();

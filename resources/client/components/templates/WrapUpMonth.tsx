@@ -1,12 +1,8 @@
 import { Button } from '@mui/material';
 import React from 'react';
-import { usePostFetch } from '../../Utils';
 import { format } from 'date-fns';
 import Category from '../../interfaces/Category';
-
-const f = (date: Date) => {
-  return usePostFetch<null>(`/close-month/${format(date, 'yyyy-MM')}`, {});
-};
+import { closeMonth } from '../../api';
 
 type WrapUpMonthProps = {
   categories: Category[];
@@ -16,7 +12,7 @@ type WrapUpMonthProps = {
 export default function WrapUpMonth(props: WrapUpMonthProps) {
   const dueDates = props.categories
     .map((x) => x.dueDate)
-    .filter((x) => x != null)
+    .filter((x) => x !== null)
     .sort((a: Date, b: Date) => (a.getTime() > b.getTime() ? 1 : -1));
 
   const smallest = dueDates[0] ?? new Date();
@@ -30,7 +26,7 @@ export default function WrapUpMonth(props: WrapUpMonthProps) {
         )} and you will no longer be able to add payments to it. Are you sure?`
       )
     ) {
-      f(smallest).then(props.onWrappedUp);
+      closeMonth(smallest).then(props.onWrappedUp);
     }
   };
 

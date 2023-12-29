@@ -1,14 +1,9 @@
 import React from 'react';
 import { useQuery } from 'react-query';
 import { AppliedPayment } from 'resources/client/interfaces/Payment';
-import { useFetch } from '../../Utils';
 import IsFetching from '../atoms/IsFetching';
 import PaymentsList from '../templates/PaymentsList';
-
-const loadPayments = async () => {
-  const data = await useFetch<AppliedPayment[]>('/payments');
-  return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
-};
+import { loadPayments } from '../../api';
 
 export default function PaymentsPage() {
   const {
