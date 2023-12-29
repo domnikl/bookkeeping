@@ -1,8 +1,6 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema';
 
 export default class extends BaseSchema {
-  protected tableName = 'snake_cases';
-
   public async up() {
     this.schema.alterTable('accounts', (table) => {
       table.renameColumn('isActive', 'is_active');

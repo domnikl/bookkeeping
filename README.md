@@ -1,10 +1,13 @@
 # bookkeeping
 
-This is my bookkeeping application. It is heavily opinionated and uses PostgreSQL as a storage backend, FinTS to synchronize bank account balances and transactions and Auth0 to handle sign ins and auth.
+Bookkeeping is a highly opinionated private household management tool.
+It uses Postgres as a storage backend and FinTS to synchronize bank account balances and transactions as well as Auth0 to handle sign ins and auth.
 
 ## Refresh access to FinTS
 
-Just login into the UI of your bank and run `node ace fints` afterwards.
+Depending on your bank, refreshing access sometimes require to login into another app they provide and run `node ace fints` afterward to resync.
+Integration may not work with every bank, you may need to tweak settings as FinTS is a rather obscure protocol.
+Please have a look at the [fints](https://github.com/domnikl/fints) fork.
 
 ## Building it
 
@@ -20,7 +23,7 @@ and deploy the build folder to your production environment and run `node ace mig
 docker build -t domnikl/bookkeeping . --network host
 ```
 
-If you want to use FinTS to automatically import transactions from your accounts, add a _cronjob_ and run the following:
+Fetching balances and transactions from FinTS will run on a schedule, but if you need to do it manually, run the following command:
 
 ```sh
 node ace fints

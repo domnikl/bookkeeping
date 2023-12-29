@@ -39,7 +39,7 @@ export const loadCategories = async () => {
   }));
 };
 
-export const loadAccounts = () => {
+export const loadAccounts = async () => {
   return useFetch<Account[]>('/accounts');
 };
 
@@ -48,7 +48,7 @@ export const loadPayments = async () => {
   return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
 };
 
-export const loadBalances = (iban: string, from: Date, to: Date) => {
+export const loadBalances = async (iban: string, from: Date, to: Date) => {
   return useFetch<BalancesForGraph[]>(
     `/balances/${iban}/${format(from, 'yyyy-MM-dd')}/${format(to, 'yyyy-MM-dd')}`
   );
@@ -62,11 +62,11 @@ export const loadReport = async () => {
   }));
 };
 
-export const loadGroups = () => {
+export const loadGroups = async () => {
   return useFetch<Array<Category>>('/categories/groups');
 };
 
-export const loadParents = () => {
+export const loadParents = async () => {
   return useFetch<Array<Category>>('/categories/parents');
 };
 
@@ -75,14 +75,14 @@ export const loadTransactions = async () => {
   return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
 };
 
-export const applyCategory = (category: Category) => {
+export const applyCategory = async (category: Category) => {
   return usePostFetch('/categories', category);
 };
 
-export const applyPayment = (payment: Payment) => {
+export const applyPayment = async (payment: Payment) => {
   return usePostFetch('/payments', payment);
 };
 
-export const closeMonth = (date: Date) => {
+export const closeMonth = async (date: Date) => {
   return usePostFetch<null>(`/close-month/${format(date, 'yyyy-MM')}`, {});
 };
