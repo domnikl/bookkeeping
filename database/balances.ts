@@ -67,7 +67,7 @@ async function buildPredictions(iban: string, lastBalance: number, lastBookingDa
   const to = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
   // get all budgets for this month
-  const categoryBudget = (await budgets(from, to)).filter((b) => (b.account = iban));
+  const categoryBudget = await budgets(iban, from, to);
 
   let balance = lastBalance;
   const start = lastBookingDate;
@@ -106,7 +106,7 @@ async function buildPredictionNextMonth(iban: string, lastBalance: number) {
   const from = new Date(date.getFullYear(), date.getMonth(), 1);
   const to = new Date(date.getFullYear(), date.getMonth() + 1, 0);
   // get all budgets for this month
-  const categoryBudget = (await budgets(from, to)).filter((b) => (b.account = iban));
+  const categoryBudget = await budgets(iban, from, to);
 
   const start = beginNextMonth(new Date());
 

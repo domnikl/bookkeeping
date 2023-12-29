@@ -59,7 +59,7 @@ export interface BudgetItem {
   percentage: number;
 }
 
-export async function budgets(from: Date, to: Date): Promise<BudgetItem[]> {
+export async function budgets(iban: string, from: Date, to: Date): Promise<BudgetItem[]> {
   const report = await Database.rawQuery(
     `WITH amounts AS (
       SELECT c.id,
@@ -77,7 +77,8 @@ export async function budgets(from: Date, to: Date): Promise<BudgetItem[]> {
                                      GROUP BY p.category_id) AS x ON x.category_id = c.id
                  WHERE ((due_date::date >= date(?) AND due_date::date <= date(?)) OR
                         due_date IS NULL)
-                   AND c.is_active = true),
+                   AND c.is_active = true
+                   AND c.account = ?),
     with_remaining AS (
       SELECT account, summary, every, due_date, expected_amount, actual_amount,
        CASE
@@ -106,7 +107,7 @@ export async function budgets(from: Date, to: Date): Promise<BudgetItem[]> {
       END AS percentage
       FROM with_remaining
       ORDER BY summary`,
-    [from, to, from, to]
+    [from, to, from, to, iban]
   );
 
   return report.rows.map((e) => {

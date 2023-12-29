@@ -19,9 +19,10 @@ Route.get('reports/balances', async () => {
   return report.rows;
 });
 
-Route.get('reports/:from/:to', async ({ request }) => {
+Route.get('reports/:iban/:from/:to', async ({ request }) => {
   const from = new Date(request.params().from);
   const to = new Date(request.params().to);
+  const iban = request.params().iban;
 
-  return budgets(from, to);
+  return budgets(iban, from, to);
 });

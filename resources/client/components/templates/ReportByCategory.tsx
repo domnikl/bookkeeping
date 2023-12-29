@@ -1,21 +1,40 @@
 import { Check, Warning } from '@mui/icons-material';
-import { Stack, TableCell, Typography } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import { Button, Stack, TableCell, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import CategoryBudget from '../../interfaces/CategoryBudget';
-import { formatDate, getLocalStorage, setLocalStorage } from '../../Utils';
+import {
+  beginOfMonth,
+  endOfMonth,
+  formatDate,
+  getLocalStorage,
+  setLocalStorage,
+  useFetch,
+} from '../../Utils';
 import AmountChip from '../atoms/AmountChip';
 import IsFetching from '../atoms/IsFetching';
 import CircularProgressWithLabel from '../molecules/CircularProgressWithLabel';
 import Empty from '../molecules/Empty';
 import EnhancedTable, { HeadCell } from '../molecules/EnhancedTable';
-import { CategoryBudgetContext } from '../pages/DashboardPage';
+import { Link } from 'react-router-dom';
+import Account from '../../interfaces/Account';
+import { useQuery } from 'react-query';
+
+const loadReportCategories = async (account: Account, from: Date, to: Date) => {
+  const data = await useFetch<CategoryBudget[]>(
+    '/reports/' + account.iban + '/' + formatDate(from) + '/' + formatDate(to)
+  );
+  return data.map((x) => ({
+    ...x,
+    dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
+  }));
+};
 
 function remainingColumn(c: CategoryBudget) {
-  let contents: any = null;
+  let contents: any;
 
-  if (c.remainingAmount == 0) {
+  if (c.remainingAmount === 0) {
     contents = <Check />;
-  } else if (c.remainingAmount == null) {
+  } else if (c.remainingAmount === null) {
     contents = (
       <Stack direction="row" justifyContent="space-between">
         <Warning />
@@ -34,7 +53,7 @@ function remainingColumn(c: CategoryBudget) {
 }
 
 type ReportByCategoryProps = {
-  isFetching: boolean;
+  account: Account;
 };
 
 type LocalStorageParams = {
@@ -48,7 +67,14 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
       return { sortOrder: 'asc', sortKey: 'summary' };
     })
   );
-  const categoryBudgets = useContext<CategoryBudget[]>(CategoryBudgetContext);
+
+  const from = beginOfMonth(new Date());
+  const to = endOfMonth(new Date());
+
+  const { isLoading, data: categoryBudgets } = useQuery<CategoryBudget[], Error>(
+    'report-categories',
+    () => loadReportCategories(props.account, from, to)
+  );
 
   useEffect(() => {
     setLocalStorage<LocalStorageParams>('reportByCategorySort', sortParams);
@@ -117,20 +143,32 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
   ];
 
   return (
-    <IsFetching isFetching={props.isFetching}>
-      <Empty items={categoryBudgets} text="There is not enough data to calculate budgets yet.">
-        <EnhancedTable
-          defaultSortKey={sortParams.sortKey}
-          defaultSortOrder={sortParams.sortOrder}
-          rowsPerPage={100}
-          rows={categoryBudgets}
-          headCells={headCells}
-          cells={cells}
-          onSortingChanged={(orderBy, order) => {
-            setSortParams({ sortKey: orderBy, sortOrder: order });
-          }}
-        />
-      </Empty>
-    </IsFetching>
+    <Stack>
+      <Stack direction="row" justifyContent="space-between" alignContent="baseline">
+        <h2>Budget</h2>
+        <Button component={Link} to="/categories" variant="text">
+          setup categories
+        </Button>
+      </Stack>
+
+      <IsFetching isFetching={isLoading}>
+        <Empty
+          items={categoryBudgets ?? []}
+          text="There is not enough data to calculate budgets yet."
+        >
+          <EnhancedTable
+            defaultSortKey={sortParams.sortKey}
+            defaultSortOrder={sortParams.sortOrder}
+            rowsPerPage={100}
+            rows={categoryBudgets ?? []}
+            headCells={headCells}
+            cells={cells}
+            onSortingChanged={(orderBy, order) => {
+              setSortParams({ sortKey: orderBy, sortOrder: order });
+            }}
+          />
+        </Empty>
+      </IsFetching>
+    </Stack>
   );
 }

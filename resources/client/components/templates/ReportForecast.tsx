@@ -7,15 +7,17 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
-import React, { useContext } from 'react';
+import React from 'react';
 import CategoryBudget from 'resources/client/interfaces/CategoryBudget';
 import AmountChip from '../atoms/AmountChip';
 import IsFetching from '../atoms/IsFetching';
 import Empty from '../molecules/Empty';
-import { CategoryBudgetContext } from '../pages/DashboardPage';
+import Account from 'resources/client/interfaces/Account';
+import { beginOfMonth, endOfMonth, formatDate, useFetch } from "../../Utils";
+import { useQuery } from "react-query";
 
 type ReportForecastProps = {
-  isFetching: boolean;
+  account: Account;
 };
 
 const sumTotal = (s: number, item: CategoryBudget, _a, _b) => {
@@ -34,26 +36,43 @@ const sumFilteredBy = (
   return categories.filter(expression).reduce<number>(sum, 0);
 };
 
+const loadReportCategories = async (account: Account, from: Date, to: Date) => {
+  const data = await useFetch<CategoryBudget[]>(
+    '/reports/' + account.iban + '/' + formatDate(from) + '/' + formatDate(to)
+  );
+  return data.map((x) => ({
+    ...x,
+    dueDate: x.dueDate !== null ? new Date(x.dueDate) : null,
+  }));
+};
+
 export default function ReportForecast(props: ReportForecastProps) {
-  const categories = useContext<CategoryBudget[]>(CategoryBudgetContext);
-  const expensesTotal = sumFilteredBy(categories, (x) => x.expectedAmount < 0, sumTotal);
-  const earningsTotal = sumFilteredBy(categories, (x) => x.expectedAmount > 0, sumTotal);
+  const from = beginOfMonth(new Date());
+  const to = endOfMonth(new Date());
+
+  const { isLoading, data: categories } = useQuery<CategoryBudget[], Error>(
+    'report-categories',
+    () => loadReportCategories(props.account, from, to)
+  );
+
+  const expensesTotal = sumFilteredBy(categories ?? [], (x) => x.expectedAmount < 0, sumTotal);
+  const earningsTotal = sumFilteredBy(categories ?? [], (x) => x.expectedAmount > 0, sumTotal);
 
   const expensesRemaining = sumFilteredBy(
-    categories,
+    categories ?? [],
     (x) => x.remainingAmount && x.remainingAmount < 0,
     sumRemaining
   );
 
   const earningsRemainig = sumFilteredBy(
-    categories,
+    categories ?? [],
     (x) => x.remainingAmount && x.remainingAmount > 0,
     sumRemaining
   );
 
   return (
-    <IsFetching isFetching={props.isFetching}>
-      <Empty items={categories} text="There is not enough data to calculate forecasts yet.">
+    <IsFetching isFetching={isLoading}>
+      <Empty items={categories ?? []} text="There is not enough data to calculate forecasts yet.">
         <TableContainer component={Paper}>
           <Table aria-label="report">
             <TableHead>
