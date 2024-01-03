@@ -101,6 +101,7 @@ export async function budgets(iban: string, from: Date, to: Date): Promise<Budge
       )
 
       SELECT account, summary, every, due_date AS "dueDate", expected_amount AS "expectedAmount", actual_amount AS "actualAmount", remaining AS "remainingAmount", CASE
+          WHEN expected_amount = 0 THEN 0
           WHEN expected_amount = actual_amount THEN 100
           WHEN expected_amount != 0 THEN floor((100.0 / abs(expected_amount)) * abs(actual_amount))
           ELSE 0
