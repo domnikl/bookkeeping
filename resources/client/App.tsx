@@ -8,8 +8,23 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { auth0 } from './auth0';
 import Layout from './Layout';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import PaymentsPage from './components/pages/PaymentsPage';
+import DashboardPage from './components/pages/DashboardPage';
+import CategoriesPage from './components/pages/CategoriesPage';
 
 export const queryClient = new QueryClient();
+const router = createBrowserRouter([
+  {
+    path: '/',
+    Component: Layout,
+    children: [
+      { path: '/categories', Component: CategoriesPage },
+      { path: '/payments', Component: PaymentsPage },
+      { path: '/', Component: DashboardPage },
+    ],
+  },
+]);
 
 export default function App() {
   const theme = createTheme({
@@ -32,7 +47,7 @@ export default function App() {
               redirect_uri: window.location.origin,
             }}
           >
-            <Layout />
+            <RouterProvider router={router} />
           </Auth0Provider>
         </QueryClientProvider>
       </LocalizationProvider>

@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import 'regenerator-runtime/runtime.js';
 import CssBaseline from '@mui/material/CssBaseline';
-import DashboardPage from './components/pages/DashboardPage';
-import CategoriesPage from './components/pages/CategoriesPage';
 import Box from '@mui/material/Box';
 import {
   AppBar,
@@ -21,14 +19,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import CategoryIcon from '@mui/icons-material/Category';
 import PaymentsIcon from '@mui/icons-material/Euro';
-import {
-  HashRouter as Router,
-  Route,
-  Link as RouterLink,
-  LinkProps as RouterLinkProps,
-  Switch,
-} from 'react-router-dom';
-import PaymentsPage from './components/pages/PaymentsPage';
+import { Link as RouterLink, LinkProps as RouterLinkProps, Outlet } from 'react-router-dom';
 import AuthPage from './components/pages/AuthPage';
 import LoggedInUser from './components/molecules/LoggedInUser';
 
@@ -66,7 +57,7 @@ export default function Layout() {
       {!isAuthenticated ? (
         <AuthPage />
       ) : (
-        <Router>
+        <>
           <Box sx={{ flexGrow: 1 }}>
             <AppBar position="fixed">
               <Toolbar>
@@ -97,19 +88,9 @@ export default function Layout() {
           </Box>
 
           <Container sx={{ marginTop: '70px' }} maxWidth={false}>
-            <Switch>
-              <Route path="/payments">
-                <PaymentsPage />
-              </Route>
-              <Route path="/categories">
-                <CategoriesPage />
-              </Route>
-              <Route path="/">
-                <DashboardPage />
-              </Route>
-            </Switch>
+            <Outlet />
           </Container>
-        </Router>
+        </>
       )}
     </div>
   );
