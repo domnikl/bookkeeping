@@ -9,54 +9,47 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import StyledModal from '../molecules/StyledModal';
+import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { DatePicker } from '@mui/x-date-pickers';
 import { removeTimeFromDate } from '../../Utils';
 import WarningIcon from '@mui/icons-material/Warning';
-import Category from 'resources/client/interfaces/Category';
+import Category from '../../interfaces/Category';
 import Transaction from '../../interfaces/Transaction';
-import Payment from 'resources/client/interfaces/Payment';
+import { Link, useLoaderData, useNavigate } from 'react-router-dom';
+import { applyPayment, loadCategories, loadTransaction } from '../../api';
+import { useQuery } from 'react-query';
 
-type ApplyIncomingTransactionModalProps = {
-  onClose: () => void;
-  onSubmit: (payment: Payment) => void;
-  categories: Category[];
-  transaction: null | Transaction;
-};
+export async function loader({ params }) {
+  return { transaction: await loadTransaction(params.transactionId) };
+}
 
-export default function ApplyTransactionModal(props: ApplyIncomingTransactionModalProps) {
-  const [summary, setSummary] = useState<string>(props.transaction?.summary ?? '');
-  const [amount, setAmount] = useState<number>(10);
-  const [bookingDate, setBookingDate] = useState<Date>(new Date());
+export default function ApplyTransactionPage() {
+  const navigate = useNavigate();
+  const { transaction } = useLoaderData() as { transaction: Transaction };
+  const { data: categories } = useQuery<Category[], Error>('categories', loadCategories);
+
+  const [summary, setSummary] = useState<string>(transaction?.summary ?? '');
+  const [amount, setAmount] = useState<number>(transaction?.amount ?? 0);
+  const [bookingDate, setBookingDate] = useState<Date>(transaction?.bookingDate ?? new Date());
   const [categoryId, setCategoryId] = useState<string>('');
 
-  useEffect(() => {
-    setSummary(props.transaction?.summary.substr(0, 100) ?? '');
-    setAmount(props.transaction?.amount ?? 0);
-    setBookingDate(removeTimeFromDate(props.transaction?.bookingDate ?? new Date()));
-    setCategoryId('');
-  }, [props.transaction]);
-
-  const handleClose = () => {
-    props.onClose();
-  };
-
   const handleButtonSubmit = () => {
-    props.onSubmit({
+    applyPayment({
       id: uuidv4(),
       bookingDate: bookingDate,
       summary: summary ?? '',
       amount: amount,
-      transactionId: props.transaction?.id.toString() ?? '',
+      transactionId: transaction?.id.toString() ?? '',
       categoryId: categoryId,
-      transaction: props.transaction,
+      transaction: transaction,
+    }).then(() => {
+      navigate('/');
     });
   };
 
   return (
-    <StyledModal open={props.transaction !== null} onClose={handleClose}>
+    <>
       <Typography id="modal-modal-title" variant="h6" component="h2">
         Apply payment
       </Typography>
@@ -73,8 +66,8 @@ export default function ApplyTransactionModal(props: ApplyIncomingTransactionMod
               onChange={(e) => setCategoryId(e.target.value)}
             >
               <MenuItem value=""></MenuItem>
-              {props.categories
-                .filter((e) => e.account === props.transaction?.accountIban)
+              {(categories ?? [])
+                .filter((e) => e.account === transaction?.accountIban)
                 .map((r: Category) => (
                   <MenuItem value={r.id} key={r.id}>
                     <Stack direction="row" alignContent="center" justifyContent="space-between">
@@ -121,7 +114,9 @@ export default function ApplyTransactionModal(props: ApplyIncomingTransactionMod
         </Stack>
       </Box>
       <Button onClick={handleButtonSubmit}>Save</Button>
-      <Button onClick={() => props.onClose()}>Cancel</Button>
-    </StyledModal>
+      <Button component={Link} to="/">
+        Cancel
+      </Button>
+    </>
   );
 }

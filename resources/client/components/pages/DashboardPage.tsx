@@ -27,10 +27,6 @@ export default function DashboardPage() {
     queryClient.invalidateQueries('report-categories');
   };
 
-  const handleTransactionApplied = () => {
-    queryClient.invalidateQueries('report-categories');
-  };
-
   return (
     <>
       <Stack direction="row" alignItems="baseline" justifyContent="space-between">
@@ -75,10 +71,7 @@ export default function DashboardPage() {
                 </Button>
               </Stack>
 
-              <TransactionsList
-                onTransactionApplied={handleTransactionApplied}
-                categories={categories ?? []}
-              />
+              <TransactionsList />
             </Stack>
           </Stack>
         </Grid>

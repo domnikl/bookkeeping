@@ -16,6 +16,9 @@ import EditCategoryPage, {
   loader as categoryLoader,
   createLoader as categoryCreateLoader,
 } from './components/pages/EditCategoryPage';
+import ApplyTransactionPage, {
+  loader as applyTransactionLoader,
+} from './components/pages/ApplyTransactionPage';
 
 export const queryClient = new QueryClient();
 const router = createHashRouter([
@@ -26,6 +29,11 @@ const router = createHashRouter([
       { path: '/categories/edit/:categoryId', Component: EditCategoryPage, loader: categoryLoader },
       { path: '/categories/create', Component: EditCategoryPage, loader: categoryCreateLoader },
       { path: '/categories', Component: CategoriesPage },
+      {
+        path: '/transactions/apply/:transactionId',
+        Component: ApplyTransactionPage,
+        loader: applyTransactionLoader,
+      },
       { path: '/payments', Component: PaymentsPage },
       { path: '/', Component: DashboardPage },
     ],

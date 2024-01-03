@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 
 type TransactionCardProps = {
   transaction: Transaction;
-  onApply: (payment: Transaction) => void;
 };
 
 export default function TransactionCard(props: TransactionCardProps) {
@@ -65,7 +64,7 @@ export default function TransactionCard(props: TransactionCardProps) {
         </Stack>
       </CardContent>
       <CardActions>
-        <Button size="small" onClick={() => props.onApply(props.transaction)}>
+        <Button size="small" component={Link} to={'/transactions/apply/' + props.transaction.id}>
           Apply
         </Button>
         <Button size="small" component={Link} to={'/categories/create?' + urlParams}>

@@ -2,6 +2,10 @@ import Route from '@ioc:Adonis/Core/Route';
 import TransactionModel from 'App/Models/TransactionModel';
 import { sumPaymentsOfTransaction } from 'Database/payments';
 
+Route.get('transactions/:transactionId', async ({ request }) => {
+  return TransactionModel.find(request.params().transactionId);
+});
+
 Route.get('transactions', async () => {
   const transactions = await TransactionModel.query()
     .where('ack', false)

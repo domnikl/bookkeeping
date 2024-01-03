@@ -75,6 +75,11 @@ export const loadParents = async () => {
   return useFetch<Array<Category>>('/categories/parents');
 };
 
+export const loadTransaction = async (id: string) => {
+  const data = await useFetch<Transaction>('/transactions/' + id);
+  return { ...data, bookingDate: new Date(data.bookingDate) };
+};
+
 export const loadTransactions = async () => {
   let data = await useFetch<Transaction[]>('/transactions');
   return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
