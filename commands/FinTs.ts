@@ -32,7 +32,7 @@ async function insertTransactionsIntoDatabase(
   return await Promise.all(
     transactions.map(async (t: SEPATransaction) => {
       const bookingDate: Date = removeTimeFromDate(new Date(t.valueDate));
-      const summary = t.descriptionStructured?.reference.text ?? '';
+      const summary = t.descriptionStructured?.reference.text?.substring(0, 255) ?? '';
       const amount = Math.ceil((t.isCredit ? t.amount : t.amount * -1) * 100);
 
       return await TransactionModel.updateOrCreate(
