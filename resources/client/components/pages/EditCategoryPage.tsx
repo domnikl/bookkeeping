@@ -14,45 +14,54 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import StyledModal from '../molecules/StyledModal';
 import { v4 as uuidv4 } from 'uuid';
 import { DatePicker } from '@mui/x-date-pickers';
 import { removeTimeFromDate } from '../../Utils';
 import Category from 'resources/client/interfaces/Category';
 import { useQuery } from 'react-query';
 import Account from 'resources/client/interfaces/Account';
-import { loadAccounts, loadGroups, loadParents } from '../../api';
+import { applyCategory, loadAccounts, loadCategory, loadGroups, loadParents } from '../../api';
+import { Link, useLoaderData, useNavigate } from 'react-router-dom';
 
-type EditCategoryPageProps = {
-  onClose: () => void;
-  onSubmit: (category: Category) => void;
-  category: null | Category;
-};
+export async function loader({ params }) {
+  return { category: await loadCategory(params.categoryId) };
+}
 
-export default function EditCategoryPage(props: EditCategoryPageProps) {
-  const [summary, setSummary] = useState<string>('');
-  const [every, setEvery] = useState<number | null>(1);
-  const [amount, setAmount] = useState<number>(10);
-  const [dueDate, setDueDate] = useState<Date | null>(new Date());
-  const [parent, setParent] = useState<string>('');
-  const [group, setGroup] = useState<string>('');
-  const [account, setAccount] = useState<string>('');
-  const [isActive, setIsActive] = useState<boolean>(true);
+export async function createLoader({ request }) {
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  return {
+    category: {
+      id: uuidv4(),
+      summary: searchParams.get('summary') ?? '',
+      every: searchParams.get('every') ?? '',
+      expectedAmount: parseInt(searchParams.get('expectedAmount') ?? '0') ?? 0,
+      dueDate: new Date(searchParams.get('dueDate') ?? new Date()),
+      isActive: !!searchParams.get('isActive') ?? false,
+      parent: searchParams.get('parent') ?? '',
+      group: searchParams.get('group') ?? '',
+      account: searchParams.get('account') ?? '',
+    },
+  };
+}
+
+export default function EditCategoryPage() {
+  const navigate = useNavigate();
+  const { category } = useLoaderData() as { category: Category };
+
+  const [summary, setSummary] = useState<string>(category?.summary?.substring(0, 100) ?? '');
+  const [every, setEvery] = useState<number | null>(category?.every ?? 1);
+  const [amount, setAmount] = useState<number>(category?.expectedAmount ?? 0);
+  const [dueDate, setDueDate] = useState<Date | null>(category?.dueDate ?? new Date());
+  const [parent, setParent] = useState<string>(category?.parent ?? '');
+  const [group, setGroup] = useState<string>(category?.group ?? '');
+  const [account, setAccount] = useState<string>(category?.account ?? '');
+  const [isActive, setIsActive] = useState<boolean>(category?.isActive ?? true);
 
   const { data: parents } = useQuery<Array<Category>>('parents', loadParents);
   const { data: groups } = useQuery<Array<Category>>('groups', loadGroups);
   const { data: accounts } = useQuery<Array<Account>>('accounts', loadAccounts);
-
-  useEffect(() => {
-    setSummary(props.category?.summary ?? '');
-    setAmount(props.category?.expectedAmount ?? 0);
-    setEvery(props.category?.every ?? 1);
-    setDueDate(props.category?.dueDate ?? null);
-    setParent(props.category?.parent ?? '');
-    setGroup(props.category?.group ?? '');
-    setAccount(props.category?.account ?? '');
-    setIsActive(props.category?.isActive ?? false);
-  }, [props.category]);
 
   useEffect(() => {
     if (every === 0) {
@@ -60,13 +69,9 @@ export default function EditCategoryPage(props: EditCategoryPageProps) {
     }
   }, [every]);
 
-  const handleClose = () => {
-    props.onClose();
-  };
-
   const handleButtonSubmit = () => {
-    props.onSubmit({
-      id: props.category?.id ?? uuidv4(),
+    applyCategory({
+      id: category?.id ?? uuidv4(),
       summary: summary ?? '',
       every: every,
       expectedAmount: amount,
@@ -75,6 +80,8 @@ export default function EditCategoryPage(props: EditCategoryPageProps) {
       parent: parent ?? null,
       group: group ?? null,
       account: account,
+    }).then(() => {
+      navigate('/categories');
     });
   };
 
@@ -84,11 +91,13 @@ export default function EditCategoryPage(props: EditCategoryPageProps) {
 
     if (every === null) {
       setDueDate(null);
+    } else {
+      setDueDate(new Date());
     }
   };
 
   return (
-    <StyledModal open={props.category !== null} onClose={handleClose}>
+    <Box>
       <Typography id="modal-modal-title" variant="h6" component="h2">
         Setup category
       </Typography>
@@ -103,6 +112,7 @@ export default function EditCategoryPage(props: EditCategoryPageProps) {
               label="summary"
               variant="outlined"
               onChange={(e) => setSummary(e.target.value)}
+              inputProps={{ maxLength: 100 }}
               value={summary}
             />
           </FormControl>
@@ -225,7 +235,9 @@ export default function EditCategoryPage(props: EditCategoryPageProps) {
         </Stack>
       </Box>
       <Button onClick={handleButtonSubmit}>Save</Button>
-      <Button onClick={() => props.onClose()}>Cancel</Button>
-    </StyledModal>
+      <Button component={Link} to="/categories">
+        Cancel
+      </Button>
+    </Box>
   );
 }

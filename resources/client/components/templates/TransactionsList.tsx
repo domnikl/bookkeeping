@@ -4,24 +4,18 @@ import Empty from '../molecules/Empty';
 import IsFetching from '../atoms/IsFetching';
 import ApplyTransactionModal from './ApplyTransactionModal';
 import TransactionCard from './TransactionCard';
-import SetupCategoryModal from './SetupCategoryModal';
 import Transaction from '../../interfaces/Transaction';
 import Category from 'resources/client/interfaces/Category';
 import Payment from 'resources/client/interfaces/Payment';
-import { v4 as uuidv4 } from 'uuid';
 import { useQuery, useQueryClient } from 'react-query';
-import { applyCategory, applyPayment, loadTransactions } from '../../api';
+import { applyPayment, loadTransactions } from '../../api';
 
 type TransactionsListProps = {
-  onCategoryCreated: (category: Category) => void;
   onTransactionApplied: (payment: Payment) => void;
   categories: Category[];
 };
 
 export default function TransactionsList(props: TransactionsListProps) {
-  const [transactionToSetupCategory, setTransactionToSetupCategory] = useState<null | Category>(
-    null
-  );
   const [transactionToApply, setTransactionToApply] = useState<null | Transaction>(null);
 
   const queryClient = useQueryClient();
@@ -45,39 +39,9 @@ export default function TransactionsList(props: TransactionsListProps) {
     });
   };
 
-  const handleSetupCategory = (transaction: Transaction): void => {
-    setTransactionToSetupCategory({
-      id: uuidv4(),
-      summary: transaction.summary.substring(0, 100),
-      expectedAmount: transaction.amount,
-      dueDate: transaction.bookingDate,
-      parent: null,
-      group: null,
-      account: transaction.accountIban,
-      isActive: true,
-      every: null,
-    });
-  };
-
-  const handleCloseSetupCategory = () => {
-    setTransactionToSetupCategory(null);
-  };
-
-  const handleSubmitSetupCategoryModal = (category: Category) => {
-    applyCategory(category).then(() => {
-      props.onCategoryCreated(category);
-      setTransactionToSetupCategory(null);
-    });
-  };
-
   return (
     <IsFetching isFetching={isLoading}>
       <Empty items={transactions ?? null} text="There are no new payments.">
-        <SetupCategoryModal
-          onSubmit={handleSubmitSetupCategoryModal}
-          onClose={handleCloseSetupCategory}
-          category={transactionToSetupCategory}
-        />
         <ApplyTransactionModal
           onSubmit={handleSubmitApply}
           onClose={handleCloseApply}
@@ -90,7 +54,6 @@ export default function TransactionsList(props: TransactionsListProps) {
               transaction={payment}
               key={payment.id}
               onApply={handleApply}
-              onSetupCategory={handleSetupCategory}
             />
           ))}
         </Stack>

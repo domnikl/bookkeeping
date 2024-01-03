@@ -4,10 +4,10 @@ import { formatDate } from '../../Utils';
 import AmountChip from '../atoms/AmountChip';
 import ArrowRight from '@mui/icons-material/ArrowRight';
 import Transaction from '../../interfaces/Transaction';
+import { Link } from 'react-router-dom';
 
 type TransactionCardProps = {
   transaction: Transaction;
-  onSetupCategory: (payment: Transaction) => void;
   onApply: (payment: Transaction) => void;
 };
 
@@ -20,11 +20,14 @@ export default function TransactionCard(props: TransactionCardProps) {
 
   const additional = additionalInformation.filter((x) => x != '');
 
-  const handleSetupCategory = () => {
-    props.onSetupCategory(props.transaction);
-  };
-
   let detailsLink = <></>;
+  let urlParams = new URLSearchParams();
+  urlParams.set('summary', props.transaction.summary);
+  urlParams.set('every', '1');
+  urlParams.set('expectedAmount', props.transaction.amount.toString());
+  urlParams.set('dueDate', formatDate(props.transaction.bookingDate));
+  urlParams.set('isActive', 'true');
+  urlParams.set('account', props.transaction.accountIban ?? '');
 
   if (props.transaction.name.startsWith('AMAZON')) {
     const orderId = props.transaction.summary.split(' ')[0];
@@ -65,7 +68,7 @@ export default function TransactionCard(props: TransactionCardProps) {
         <Button size="small" onClick={() => props.onApply(props.transaction)}>
           Apply
         </Button>
-        <Button size="small" onClick={handleSetupCategory}>
+        <Button size="small" component={Link} to={'/categories/create?' + urlParams}>
           Setup category
         </Button>
         {detailsLink}

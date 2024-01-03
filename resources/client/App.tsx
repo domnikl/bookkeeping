@@ -8,17 +8,23 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { auth0 } from './auth0';
 import Layout from './Layout';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
 import PaymentsPage from './components/pages/PaymentsPage';
 import DashboardPage from './components/pages/DashboardPage';
 import CategoriesPage from './components/pages/CategoriesPage';
+import EditCategoryPage, {
+  loader as categoryLoader,
+  createLoader as categoryCreateLoader,
+} from './components/pages/EditCategoryPage';
 
 export const queryClient = new QueryClient();
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '/',
     Component: Layout,
     children: [
+      { path: '/categories/edit/:categoryId', Component: EditCategoryPage, loader: categoryLoader },
+      { path: '/categories/create', Component: EditCategoryPage, loader: categoryCreateLoader },
       { path: '/categories', Component: CategoriesPage },
       { path: '/payments', Component: PaymentsPage },
       { path: '/', Component: DashboardPage },

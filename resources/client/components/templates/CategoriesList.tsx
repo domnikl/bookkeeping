@@ -1,12 +1,11 @@
 import { Edit, Warning } from '@mui/icons-material';
 import { Card, CardContent, IconButton, Stack, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 import Category from 'resources/client/interfaces/Category';
 import { formatDate } from '../../Utils';
 import AmountChip from '../atoms/AmountChip';
 import Empty from '../molecules/Empty';
-import SetupCategoryModal from './SetupCategoryModal';
-import { applyCategory } from "../../api";
+import { Link } from 'react-router-dom';
 
 type CategoriesListProps = {
   categories: Category[];
@@ -14,27 +13,8 @@ type CategoriesListProps = {
 };
 
 export default function CategoriesList(props: CategoriesListProps) {
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-  const handleSubmitSetupCategoryModal = (category: Category) => {
-    applyCategory(category).then(() => {
-      props.onCategoryCreated();
-      setEditingCategory(null);
-    });
-  };
-
-  const handleCloseSetupCategory = () => {
-    setEditingCategory(null);
-  };
-
   return (
     <Stack spacing={1}>
-      <SetupCategoryModal
-        onSubmit={handleSubmitSetupCategoryModal}
-        onClose={handleCloseSetupCategory}
-        category={editingCategory}
-      />
-
       <Empty items={props.categories}>
         {props.categories.map((category: Category) => (
           <Card key={category.id}>
@@ -78,7 +58,8 @@ export default function CategoriesList(props: CategoriesListProps) {
                 <IconButton
                   sx={{ flexGrow: 1, height: '56px', width: '56px' }}
                   size="small"
-                  onClick={() => setEditingCategory(category)}
+                  component={Link}
+                  to={'/categories/edit/' + category.id}
                 >
                   <Edit fontSize="inherit" />
                 </IconButton>

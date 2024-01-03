@@ -27,10 +27,6 @@ export default function DashboardPage() {
     queryClient.invalidateQueries('report-categories');
   };
 
-  const handleCategoryCreated = () => {
-    queryClient.invalidateQueries('categories');
-  };
-
   const handleTransactionApplied = () => {
     queryClient.invalidateQueries('report-categories');
   };
@@ -80,7 +76,6 @@ export default function DashboardPage() {
               </Stack>
 
               <TransactionsList
-                onCategoryCreated={handleCategoryCreated}
                 onTransactionApplied={handleTransactionApplied}
                 categories={categories ?? []}
               />

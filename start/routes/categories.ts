@@ -23,6 +23,10 @@ Route.get('categories/groups', async () => {
   return CategoryModel.query().whereNotNull('group').distinct('group').orderBy('group');
 });
 
+Route.get('categories/:categoryId', async ({ request }) => {
+  return CategoryModel.find(request.params().categoryId);
+});
+
 Route.post('close-month/:date', async ({ request }) => {
   await wrapUpMonth(request.params().date);
 
