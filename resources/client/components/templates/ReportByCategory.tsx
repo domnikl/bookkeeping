@@ -14,7 +14,7 @@ import IsFetching from '../atoms/IsFetching';
 import CircularProgressWithLabel from '../molecules/CircularProgressWithLabel';
 import Empty from '../molecules/Empty';
 import EnhancedTable, { HeadCell } from '../molecules/EnhancedTable';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Account from '../../interfaces/Account';
 import { useQuery } from 'react-query';
 import { loadBudgets } from '../../api';
@@ -52,6 +52,7 @@ type LocalStorageParams = {
 };
 
 export default function ReportByCategory(props: ReportByCategoryProps) {
+  const navigate = useNavigate();
   const [sortParams, setSortParams] = useState<LocalStorageParams>(
     getLocalStorage<LocalStorageParams>('reportByCategorySort', () => {
       return { sortOrder: 'asc', sortKey: 'summary' };
@@ -153,6 +154,9 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
             rows={categoryBudgets ?? []}
             headCells={headCells}
             cells={cells}
+            onRowClick={(row) => {
+              navigate('/categories/' + row.id + '/payments');
+            }}
             onSortingChanged={(orderBy, order) => {
               setSortParams({ sortKey: orderBy, sortOrder: order });
             }}

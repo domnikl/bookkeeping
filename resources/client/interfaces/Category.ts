@@ -1,3 +1,5 @@
+import { AppliedPayment } from './Payment';
+
 export default interface Category {
   id: string;
   summary: string;
@@ -8,4 +10,5 @@ export default interface Category {
   parent: null | string;
   group: null | string;
   account: null | string;
+  payments?: AppliedPayment[] | undefined;
 }

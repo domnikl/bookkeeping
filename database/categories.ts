@@ -80,7 +80,7 @@ export async function budgets(iban: string, from: Date, to: Date): Promise<Budge
                    AND c.is_active = true
                    AND c.account = ?),
     with_remaining AS (
-      SELECT account, summary, every, due_date, expected_amount, actual_amount,
+      SELECT id, account, summary, every, due_date, expected_amount, actual_amount,
        CASE
         WHEN expected_amount = 0 THEN 0
         WHEN expected_amount = actual_amount THEN 0
@@ -100,7 +100,7 @@ export async function budgets(iban: string, from: Date, to: Date): Promise<Budge
       FROM amounts
       )
 
-      SELECT account, summary, every, due_date AS "dueDate", expected_amount AS "expectedAmount", actual_amount AS "actualAmount", remaining AS "remainingAmount", CASE
+      SELECT id, account, summary, every, due_date AS "dueDate", expected_amount AS "expectedAmount", actual_amount AS "actualAmount", remaining AS "remainingAmount", CASE
           WHEN expected_amount = 0 THEN 0
           WHEN expected_amount = actual_amount THEN 100
           WHEN expected_amount != 0 THEN floor((100.0 / abs(expected_amount)) * abs(actual_amount))

@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { auth0 } from './auth0';
 import Layout from './Layout';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
-import PaymentsPage from './components/pages/PaymentsPage';
+import PaymentsPage, { loader as paymentsLoader } from './components/pages/PaymentsPage';
 import DashboardPage from './components/pages/DashboardPage';
 import CategoriesPage from './components/pages/CategoriesPage';
 import EditCategoryPage, {
@@ -27,6 +27,7 @@ const router = createHashRouter([
     Component: Layout,
     children: [
       { path: '/categories/edit/:categoryId', Component: EditCategoryPage, loader: categoryLoader },
+      { path: '/categories/:categoryId/payments', Component: PaymentsPage, loader: paymentsLoader },
       { path: '/categories/create', Component: EditCategoryPage, loader: categoryCreateLoader },
       { path: '/categories', Component: CategoriesPage },
       {

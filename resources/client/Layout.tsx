@@ -19,7 +19,12 @@ import MenuIcon from '@mui/icons-material/Menu';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import CategoryIcon from '@mui/icons-material/Category';
 import PaymentsIcon from '@mui/icons-material/Euro';
-import { Link as RouterLink, LinkProps as RouterLinkProps, Outlet } from 'react-router-dom';
+import {
+  Link as RouterLink,
+  LinkProps as RouterLinkProps,
+  Outlet,
+  useNavigate,
+} from 'react-router-dom';
 import AuthPage from './components/pages/AuthPage';
 import LoggedInUser from './components/molecules/LoggedInUser';
 
@@ -47,6 +52,7 @@ function ListItemLink(props: ListItemLinkProps) {
 }
 
 export default function Layout() {
+  const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const { isAuthenticated } = useAuth0();
 
@@ -79,7 +85,12 @@ export default function Layout() {
                     </List>
                   </Drawer>
                 </IconButton>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ flexGrow: 1, cursor: 'pointer' }}
+                  onClick={() => navigate('/')}
+                >
                   bookkeeping
                 </Typography>
                 <LoggedInUser />

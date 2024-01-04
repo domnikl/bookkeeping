@@ -24,7 +24,12 @@ Route.get('categories/groups', async () => {
 });
 
 Route.get('categories/:categoryId', async ({ request }) => {
-  return CategoryModel.find(request.params().categoryId);
+  return CategoryModel.query()
+    .where('id', request.params().categoryId)
+    .preload('payments', (query) => {
+      query.orderBy('bookingDate', 'desc');
+    })
+    .first();
 });
 
 Route.post('close-month/:date', async ({ request }) => {

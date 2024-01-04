@@ -33,7 +33,16 @@ export const loadBudgets = async (account: Account, from: Date, to: Date) => {
 
 export const loadCategory = async (id: string) => {
   const data = await useFetch<Category>('/categories/' + id);
-  return { ...data, dueDate: data.dueDate ? new Date(data.dueDate) : null };
+  data.payments = data.payments?.map((x) => ({
+    ...x,
+    category: data,
+    bookingDate: new Date(x.bookingDate),
+  }));
+
+  return {
+    ...data,
+    dueDate: data.dueDate ? new Date(data.dueDate) : null,
+  };
 };
 
 export const loadCategories = async () => {

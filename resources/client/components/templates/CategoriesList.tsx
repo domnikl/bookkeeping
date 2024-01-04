@@ -1,15 +1,14 @@
 import { Edit, Warning } from '@mui/icons-material';
-import { Card, CardContent, IconButton, Stack, Typography } from '@mui/material';
+import { Card, CardContent, IconButton, Link, Stack, Typography } from '@mui/material';
 import React from 'react';
 import Category from 'resources/client/interfaces/Category';
 import { formatDate } from '../../Utils';
 import AmountChip from '../atoms/AmountChip';
 import Empty from '../molecules/Empty';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 type CategoriesListProps = {
   categories: Category[];
-  onCategoryCreated: () => void;
 };
 
 export default function CategoriesList(props: CategoriesListProps) {
@@ -29,7 +28,12 @@ export default function CategoriesList(props: CategoriesListProps) {
                     <Stack direction="row" sx={{ alignItems: 'baseline' }} spacing={1}>
                       {!category.isActive && <Warning />}
                       <Typography variant="h6" component="div">
-                        {category.summary}
+                        <Link
+                          component={RouterLink}
+                          to={'/categories/' + category.id + '/payments'}
+                        >
+                          {category.summary}
+                        </Link>
                       </Typography>
                       <Typography sx={{ fontSize: 12 }} color="text.secondary" component="div">
                         {category.parent}
@@ -58,7 +62,7 @@ export default function CategoriesList(props: CategoriesListProps) {
                 <IconButton
                   sx={{ flexGrow: 1, height: '56px', width: '56px' }}
                   size="small"
-                  component={Link}
+                  component={RouterLink}
                   to={'/categories/edit/' + category.id}
                 >
                   <Edit fontSize="inherit" />

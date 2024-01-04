@@ -67,17 +67,19 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
   return (
     <TableHead>
       <TableRow>
-        {props.selectable && <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
-        </TableCell>}
+        {props.selectable && (
+          <TableCell padding="checkbox">
+            <Checkbox
+              color="primary"
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{
+                'aria-label': 'select all desserts',
+              }}
+            />
+          </TableCell>
+        )}
         {props.headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -127,9 +129,12 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
           {numSelected} selected
         </Typography>
       ) : (
-        <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
-          
-        </Typography>
+        <Typography
+          sx={{ flex: '1 1 100%' }}
+          variant="h6"
+          id="tableTitle"
+          component="div"
+        ></Typography>
       )}
       {numSelected > 0 ? (
         <Tooltip title="Delete">
@@ -149,15 +154,16 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 };
 
 interface EnhancedTableProps {
-    defaultSortKey: string;
-    defaultSortOrder: string;
-    rowsPerPage: number;
-    rows: any[];
-    headCells: HeadCell[];
-    cells: ((row: any) => JSX.Element)[];
-    selectable?: null | boolean;
-    dense?: null | boolean;
-    onSortingChanged?: (orderBy: string, order: string) => void;
+  defaultSortKey: string;
+  defaultSortOrder: string;
+  rowsPerPage: number;
+  rows: any[];
+  headCells: HeadCell[];
+  cells: ((row: any) => JSX.Element)[];
+  selectable?: null | boolean;
+  dense?: null | boolean;
+  onSortingChanged?: (orderBy: string, order: string) => void;
+  onRowClick?: (row: any) => void;
 }
 
 export default function EnhancedTable(props: EnhancedTableProps) {
@@ -184,14 +190,16 @@ export default function EnhancedTable(props: EnhancedTableProps) {
     setSelected([]);
   };
 
-  const handleClick = (_: React.MouseEvent<unknown>, name: string) => {
+  const handleClick = (_: React.MouseEvent<unknown>, row: any) => {
+    props.onRowClick?.call(this, row);
+
     if (!props.selectable) return;
 
-    const selectedIndex = selected.indexOf(name);
+    const selectedIndex = selected.indexOf(row);
     let newSelected: readonly string[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, row);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -251,23 +259,25 @@ export default function EnhancedTable(props: EnhancedTableProps) {
 
                   return (
                     <TableRow
-                      key={"row-" + index}
+                      key={'row-' + index}
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(event, row)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
                       selected={isItemSelected}
                     >
-                      {props.selectable && <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
-                          }}
-                        />
-                      </TableCell>}
+                      {props.selectable && (
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                            inputProps={{
+                              'aria-labelledby': labelId,
+                            }}
+                          />
+                        </TableCell>
+                      )}
                       {props.cells.map((e) => e(row))}
                     </TableRow>
                   );
