@@ -20,7 +20,7 @@
     "@symfony/webpack-encore": "^1.6.1",
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.0.0",
-    "@types/node": "^18.0.0",
+    "@types/node": "^20.0.0",
     "@types/regenerator-runtime": "^0.13.5",
     "@types/uuid": "^9.0.7",
     "adonis-preset-ts": "^2.1.0",
