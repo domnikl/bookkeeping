@@ -63,7 +63,7 @@
     "babel-loader": "^9.0.0",
     "chart.js": "^4",
     "date-fns": "^2.24.0",
-    "dotenv": "^10.0.0",
+    "dotenv": "^16.0.0",
     "fints": "https://gitpkg.now.sh/domnikl/fints/packages/fints?fcfda59c1985f7e0d86c655d804243bfe61b87d7",
     "laravel-mix": "^6.0.31",
     "mqtt": "^5.3.3",
