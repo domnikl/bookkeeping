@@ -53,7 +53,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} locale={enLocale}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enLocale}>
         <QueryClientProvider client={queryClient}>
           <Auth0Provider
             domain={auth0.domain}
