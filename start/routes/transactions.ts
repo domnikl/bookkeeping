@@ -5,9 +5,11 @@ import { sumPaymentsOfTransaction } from 'Database/payments';
 Route.get('transactions/:transactionId', async ({ request }) => {
   const transactionId = request.params().transactionId
   const transaction = await TransactionModel.find(transactionId);
-  const sumPayments = parseInt(await sumPaymentsOfTransaction(transactionId));
+  const sumPayments = await sumPaymentsOfTransaction(transactionId);
 
-  transaction.amount -= sumPayments;
+  if (transaction != null) {
+    transaction.amount -= sumPayments;
+  }
 
   return transaction;
 });
