@@ -52,10 +52,12 @@ export async function findBalancesByMonth(iban: string, from: string, to: string
     data: prediction,
   });
 
+  const previous = prediction.filter((x) => x != null)
+
   existingValues.unshift({
     label: 'prediction',
     prediction: true,
-    data: await buildPredictionNextMonth(iban, prediction[prediction.length - 1]),
+    data: await buildPredictionNextMonth(iban, previous[previous.length - 1]),
   });
 
   return existingValues;

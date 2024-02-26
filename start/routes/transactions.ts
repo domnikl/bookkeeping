@@ -3,7 +3,13 @@ import TransactionModel from 'App/Models/TransactionModel';
 import { sumPaymentsOfTransaction } from 'Database/payments';
 
 Route.get('transactions/:transactionId', async ({ request }) => {
-  return TransactionModel.find(request.params().transactionId);
+  const transactionId = request.params().transactionId
+  const transaction = await TransactionModel.find(transactionId);
+  const sumPayments = parseInt(await sumPaymentsOfTransaction(transactionId));
+
+  transaction.amount -= sumPayments;
+
+  return transaction;
 });
 
 Route.get('transactions', async () => {

@@ -29,7 +29,7 @@ export default function ApplyTransactionPage() {
   const { transaction } = useLoaderData() as { transaction: Transaction };
   const { data: categories } = useQuery<Category[], Error>('categories', loadCategories);
 
-  const [summary, setSummary] = useState<string>(transaction?.summary ?? '');
+  const [summary, setSummary] = useState<string>((transaction?.summary ?? '').substr(0, 100));
   const [amount, setAmount] = useState<number>(transaction?.amount ?? 0);
   const [bookingDate, setBookingDate] = useState<Date>(transaction?.bookingDate ?? new Date());
   const [categoryId, setCategoryId] = useState<string>('');
