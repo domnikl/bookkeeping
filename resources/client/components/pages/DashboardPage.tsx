@@ -30,50 +30,54 @@ export default function DashboardPage() {
   return (
     <>
       <Stack direction="row" alignItems="baseline" justifyContent="space-between">
-        <h1>Dashboard</h1>
+        <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={4}>
+          <h1>Dashboard</h1>
+
+          <AccountSelect
+            items={accounts ?? []}
+            onSelect={(a) => {
+              setAccountForBalances(a);
+              setLocalStorage<Account>('accountForBalances', a);
+            }}
+            value={accountForBalances}
+          />
+        </Stack>
+
         <WrapUpMonth onWrappedUp={refreshReportCategories} categories={categories ?? []} />
       </Stack>
 
       <Grid container spacing={2}>
         <Grid item md={12} lg={6}>
           <Stack>
-            <Stack direction="row" justifyContent="space-between" alignItems="baseline">
-              <h2>Balance history</h2>
-              <AccountSelect
-                items={accounts ?? []}
-                onSelect={(a) => {
-                  setAccountForBalances(a);
-                  setLocalStorage<Account>('accountForBalances', a);
-                }}
-                value={accountForBalances}
-              />
+            <Stack direction="row" justifyContent="space-between" alignContent="baseline">
+              <h2>New payments</h2>
+              <Button component={Link} to="/payments" variant="text">
+                see all payments
+              </Button>
             </Stack>
 
-            {accountForBalances && <BalancesGraph account={accountForBalances} />}
-            {accountForBalances && <ReportByCategory account={accountForBalances} />}
+            <TransactionsList />
           </Stack>
         </Grid>
-        <Grid item md={12} lg={6}>
-          <Stack>
-            <Stack>
-              <h2>Balances</h2>
-              <ReportBalances />
-            </Stack>
-            <Stack>
-              <h2>Forecast</h2>
-              {accountForBalances && <ReportForecast account={accountForBalances} />}
-            </Stack>
-            <Stack>
-              <Stack direction="row" justifyContent="space-between" alignContent="baseline">
-                <h2>New payments</h2>
-                <Button component={Link} to="/payments" variant="text">
-                  see all payments
-                </Button>
-              </Stack>
 
-              <TransactionsList />
-            </Stack>
-          </Stack>
+        <Grid item md={12} lg={6}>
+          <h2>Balance history</h2>
+
+          {accountForBalances && <BalancesGraph account={accountForBalances} />}
+        </Grid>
+
+        <Grid item md={12} lg={6}>
+          <h2>Balances</h2>
+          <ReportBalances />
+        </Grid>
+
+        <Grid item md={12} lg={6}>
+          <h2>Forecast</h2>
+          {accountForBalances && <ReportForecast account={accountForBalances} />}
+        </Grid>
+
+        <Grid item md={12} lg={6}>
+          {accountForBalances && <ReportByCategory account={accountForBalances} />}
         </Grid>
       </Grid>
     </>
