@@ -9,7 +9,7 @@ export async function wrapUpMonth(date: string) {
   await Database.transaction(async (trx) => {
     // collect historical data
     await Database.rawQuery(
-      `INSERT INTO historic_categories (id, category_id, summary, expected_amount, due_date, parent, account, created_at, updated_at)
+      `INSERT INTO historic_categories (id, category_id, summary, expected_amount, due_date, parent, account, onetime, created_at, updated_at)
         SELECT gen_random_uuid() AS id,
                 c.id AS category_id,
                 summary,
@@ -17,6 +17,7 @@ export async function wrapUpMonth(date: string) {
                 COALESCE(due_date, DATE(?)) AS "date",
                 parent,
                 account,
+                c.onetime,
                 now(),
                 now()
         FROM categories c
@@ -34,7 +35,7 @@ export async function wrapUpMonth(date: string) {
         .whereBetween('dueDate', [startOfMonth, endOfMonth])
     )
       .map((c: CategoryModel) => {
-        if (c.dueDate === null || c.every === null) {
+        if (c.dueDate === null || c.every === null || c.oneTime) {
           return c;
         }
 

@@ -49,7 +49,8 @@ export default function CategoriesList(props: CategoriesListProps) {
 
                   {category.dueDate !== null ? (
                     <Typography sx={{ fontSize: 12 }} color="text.secondary" gutterBottom>
-                      {formatDate(category.dueDate)}, every {category.every} month
+                      {formatDate(category.dueDate)},{' '}
+                      {category.oneTime ? 'one-time' : `every ${category.every} month`}
                     </Typography>
                   ) : null}
                   <Typography sx={{ fontSize: 12 }} color="text.secondary" component="div">

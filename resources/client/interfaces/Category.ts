@@ -5,6 +5,7 @@ export default interface Category {
   summary: string;
   dueDate: null | Date;
   expectedAmount: number;
+  oneTime: boolean;
   isActive: boolean;
   every: null | number;
   parent: null | string;

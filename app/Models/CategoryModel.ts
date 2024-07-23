@@ -32,6 +32,9 @@ export default class CategoryModel extends BaseModel {
   @column()
   public account: null | string;
 
+  @column({ columnName: 'onetime', serializeAs: 'oneTime' })
+  public oneTime: boolean = false;
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
 

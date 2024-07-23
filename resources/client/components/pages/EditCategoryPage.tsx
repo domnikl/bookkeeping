@@ -76,6 +76,7 @@ export default function EditCategoryPage() {
       every: every,
       expectedAmount: amount,
       dueDate: dueDate,
+      oneTime: every === -1,
       isActive: isActive,
       parent: parent ?? null,
       group: group ?? null,
@@ -99,10 +100,12 @@ export default function EditCategoryPage() {
   return (
     <Box>
       <Typography id="modal-modal-title" variant="h6" component="h2">
-        Setup category
+        {every && every == -1 ? 'Create one-time payment' : 'Create regular payment'}
       </Typography>
       <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-        {every ? 'This will setup a regular payment that is due every ' + every + ' months.' : ''}
+        {every && every != -1
+          ? 'This will setup a regular payment that is due every ' + every + ' months.'
+          : ''}
       </Typography>
       <Box component="form">
         <Stack spacing={2}>
@@ -199,6 +202,7 @@ export default function EditCategoryPage() {
               onChange={(e) => handleUpdateOnEvery(e.target.value)}
             >
               <MenuItem value={0}>never</MenuItem>
+              <MenuItem value={-1}>one-time</MenuItem>
               <MenuItem value={1}>monthly</MenuItem>
               <MenuItem value={3}>quarterly</MenuItem>
               <MenuItem value={12}>yearly</MenuItem>

@@ -137,9 +137,20 @@ export default function ReportByCategory(props: ReportByCategoryProps) {
     <Stack>
       <Stack direction="row" justifyContent="space-between" alignContent="baseline">
         <h2>Budget</h2>
-        <Button component={Link} to="/categories" variant="text">
-          setup categories
-        </Button>
+
+        <Stack direction="row">
+          <Button component={Link} to="/categories" variant="text">
+            setup categories
+          </Button>
+
+          <Button
+            component={Link}
+            to={`/categories/create?account=${props.account.iban}&every=-1&isActive=1`}
+            variant="text"
+          >
+            plan one-time expense
+          </Button>
+        </Stack>
       </Stack>
 
       <IsFetching isFetching={isLoading}>
