@@ -266,6 +266,7 @@ export default function EnhancedTable(props: EnhancedTableProps) {
                       aria-checked={isItemSelected}
                       tabIndex={-1}
                       selected={isItemSelected}
+                      sx={{ cursor: props.onRowClick ? 'pointer' : 'default' }}
                     >
                       {props.selectable && (
                         <TableCell padding="checkbox">
