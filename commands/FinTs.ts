@@ -40,6 +40,7 @@ async function insertTransactionsIntoDatabase(
           bookingDate: DateTime.fromJSDate(bookingDate),
           name: t.descriptionStructured?.name ?? '',
           summary,
+          amount,
         },
         {
           id: uuid4v(),
