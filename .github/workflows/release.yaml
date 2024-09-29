@@ -25,7 +25,7 @@ jobs:
           images: domnikl/bookkeeping
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@f8bc7f46003ef0cf98b715743d86c2f1ccd01436
+        uses: docker/build-push-action@e44afff3590e1d4f93b6adc72376512edb012a7c
         with:
           context: .
           push: true
