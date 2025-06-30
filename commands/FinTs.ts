@@ -10,9 +10,33 @@ import {
 } from 'fints';
 import { v4 as uuid4v } from 'uuid';
 import TransactionModel from 'App/Models/TransactionModel';
+import iconv from 'iconv-lite';
 
 function removeTimeFromDate(date: Date): Date {
   return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+}
+
+/**
+ * Decode text from FinTS which often comes with ISO-8859-1 encoding
+ * This fixes German umlauts and other special characters
+ */
+function decodeFinTSText(text: string): string {
+  if (!text) return '';
+
+  text = JSON.parse(JSON.stringify(text));
+
+  try {
+    // First try to decode as ISO-8859-1 (Latin-1) to UTF-8
+    // This is the most common encoding issue with German FinTS data
+    const buf = Buffer.from(text, 'latin1');
+    return iconv.decode(buf, 'utf-8');
+  } catch (error) {
+    console.error(error);
+
+    // If decoding fails, return the original text
+    console.warn(`Failed to decode FinTS text: ${text.substring(0, 50)}...`);
+    return text;
+  }
 }
 
 async function getTransactions(
@@ -32,11 +56,16 @@ async function insertTransactionsIntoDatabase(
   return await Promise.all(
     transactions.map(async (t: SEPATransaction) => {
       const bookingDate: Date = removeTimeFromDate(new Date(t.valueDate));
-      const summary =
+      const rawSummary =
         t.descriptionStructured?.reference.text ?? t.descriptionStructured?.reference.raw ?? '';
-      const name = !!t.descriptionStructured?.name
+      const rawName = !!t.descriptionStructured?.name
         ? t.descriptionStructured?.name
         : t.descriptionStructured?.reference.raw ?? '';
+
+      // Decode text to fix German umlauts
+      const summary = decodeFinTSText(rawSummary);
+      const name = decodeFinTSText(rawName);
+
       const amount = Math.ceil((t.isCredit ? t.amount : t.amount * -1) * 100);
 
       return await TransactionModel.updateOrCreate(
