@@ -1,8 +1,7 @@
-version: "3.9"
 services:
   postgresql:
     image: postgres
     environment:
       POSTGRES_PASSWORD: bookkeeping
     ports:
-      - "5432:5432"
+      - '54323:5432'

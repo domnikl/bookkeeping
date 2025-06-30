@@ -32,21 +32,24 @@ async function insertTransactionsIntoDatabase(
   return await Promise.all(
     transactions.map(async (t: SEPATransaction) => {
       const bookingDate: Date = removeTimeFromDate(new Date(t.valueDate));
-      const summary = t.descriptionStructured?.reference.text?.substring(0, 255) ?? '';
+      const summary =
+        t.descriptionStructured?.reference.text ?? t.descriptionStructured?.reference.raw ?? '';
+      const name = !!t.descriptionStructured?.name
+        ? t.descriptionStructured?.name
+        : t.descriptionStructured?.reference.raw ?? '';
       const amount = Math.ceil((t.isCredit ? t.amount : t.amount * -1) * 100);
 
       return await TransactionModel.updateOrCreate(
         {
-          bookingDate: DateTime.fromJSDate(bookingDate),
-          name: t.descriptionStructured?.name ?? '',
-          summary,
+          summary: summary.substring(0, 255),
           amount,
+          bookingDate: DateTime.fromJSDate(bookingDate),
         },
         {
           id: uuid4v(),
           bookingDate: DateTime.fromJSDate(bookingDate),
-          name: t.descriptionStructured?.name ?? '',
-          summary,
+          name: name.substring(0, 255),
+          summary: summary.substring(0, 255),
           amount,
           accountIban: account.iban,
         }
@@ -94,15 +97,6 @@ export async function runImport() {
       const transactions = await getTransactions(client, account, startDate, endDate);
       const affected = await insertTransactionsIntoDatabase(account, transactions);
 
-      if (affected.length > 0) {
-        transactions.forEach((transaction) => {
-          console.log(
-            `${transaction.description}, ${transaction.entryDate}, ${transaction.amount} ${transaction.currency}`
-          );
-        });
-      }
-
-      // TODO: report newly transmitted transactions to Discord also
       console.log(
         `import completed: ${affected.length} transactions processed for ${account.iban}`
       );
