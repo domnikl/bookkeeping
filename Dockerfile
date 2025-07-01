@@ -1,7 +1,7 @@
-ARG NODE_IMAGE=node:16-alpine
+ARG NODE_IMAGE=node:23-alpine
 
 FROM $NODE_IMAGE AS base
-RUN apk --no-cache add dumb-init
+RUN apk --no-cache add dumb-init python3 make g++
 RUN mkdir -p /home/node/app && chown node:node /home/node/app
 WORKDIR /home/node/app
 USER node
@@ -15,7 +15,7 @@ RUN echo "" > .env && node ace build --production
 
 FROM base AS production
 ENV NODE_ENV=production
-ENV PORT=$PORT
+ENV PORT=3333
 ENV HOST=0.0.0.0
 COPY --chown=node:node ./package*.json ./
 RUN npm ci --production
