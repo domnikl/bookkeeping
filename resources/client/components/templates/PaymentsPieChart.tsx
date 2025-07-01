@@ -8,6 +8,7 @@ import { Pie } from 'react-chartjs-2';
 import { useQuery } from 'react-query';
 import { loadPaymentsByDateRange } from '../../api';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { useTheme, useMediaQuery } from '@mui/material';
 
 ChartJS.register(...registerables);
 
@@ -29,6 +30,9 @@ const colors = [
 ];
 
 export default function PaymentsPieChart() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   const currentMonth = new Date();
   const fromDate = startOfMonth(currentMonth);
   const toDate = endOfMonth(currentMonth);
@@ -69,16 +73,48 @@ export default function PaymentsPieChart() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: isMobile ? ('bottom' as const) : ('right' as const),
         labels: {
-          padding: 20,
+          padding: isMobile ? 10 : 20,
           usePointStyle: true,
+          color: 'rgba(255, 255, 255, 0.3)',
+          font: {
+            size: isMobile ? 11 : 14,
+            weight: 'normal',
+          },
+          generateLabels: (chart) => {
+            return (
+              chart.data.labels?.map((label, index) => ({
+                text: label as string,
+                fillStyle: colors[index % colors.length],
+                strokeStyle: colors[index % colors.length],
+                lineWidth: 0,
+                pointStyle: 'circle',
+                hidden: false,
+                index: index,
+                color: 'rgba(255, 255, 255, 0.3)',
+              })) || []
+            );
+          },
         },
       },
       title: {
         display: false,
       },
       tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.3)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        titleFont: {
+          size: isMobile ? 14 : 16,
+          weight: 'bold',
+        },
+        bodyFont: {
+          size: isMobile ? 12 : 14,
+        },
         callbacks: {
           label: function (context) {
             const label = context.label || '';
@@ -93,13 +129,22 @@ export default function PaymentsPieChart() {
   };
 
   return (
-    <div style={{ height: '300px' }}>
+    <div
+      style={{
+        height: isMobile ? '350px' : '400px',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <IsFetching isFetching={isFetching}>
         <Empty
           items={payments ?? null}
           text={`No payments found for ${format(currentMonth, 'MMMM yyyy')}.`}
         >
-          <Pie data={chartData} options={options} />
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <Pie data={chartData} options={options} />
+          </div>
         </Empty>
       </IsFetching>
     </div>

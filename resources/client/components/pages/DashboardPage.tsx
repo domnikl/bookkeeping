@@ -48,10 +48,14 @@ export default function DashboardPage() {
       </Stack>
 
       <Grid container spacing={2}>
-        <Grid item md={12} lg={12}>
+        <Grid item md={12} lg={6}>
           <h2>Balance history</h2>
-
           {accountForBalances && <BalancesGraph account={accountForBalances} />}
+        </Grid>
+
+        <Grid item md={12} lg={6}>
+          <h2>Payments by category (this month)</h2>
+          <PaymentsPieChart />
         </Grid>
 
         <Grid item md={12} lg={6}>
@@ -65,11 +69,6 @@ export default function DashboardPage() {
 
             <TransactionsList />
           </Stack>
-        </Grid>
-
-        <Grid item md={12} lg={6}>
-          <h2>Payments by category (this month)</h2>
-          <PaymentsPieChart />
         </Grid>
 
         <Grid item md={12} lg={6}>
