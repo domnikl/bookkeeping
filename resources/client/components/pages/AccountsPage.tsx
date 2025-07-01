@@ -150,8 +150,6 @@ export default function AccountsPage() {
                           <Switch
                             checked={account.isActive}
                             onChange={(e) => {
-                              console.log(e.target.checked);
-
                               const updatedAccount = {
                                 ...account,
                                 is_active: e.target.checked,
