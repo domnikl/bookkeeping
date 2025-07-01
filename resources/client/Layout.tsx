@@ -19,6 +19,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import CategoryIcon from '@mui/icons-material/Category';
 import PaymentsIcon from '@mui/icons-material/Euro';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import {
   Link as RouterLink,
   LinkProps as RouterLinkProps,
@@ -82,6 +83,11 @@ export default function Layout() {
                       <ListItemLink to="/" icon={<InboxIcon />} primary="Dashboard" />
                       <ListItemLink to="/payments" icon={<PaymentsIcon />} primary="Payments" />
                       <ListItemLink to="/categories" icon={<CategoryIcon />} primary="Categories" />
+                      <ListItemLink
+                        to="/accounts"
+                        icon={<AccountBalanceIcon />}
+                        primary="Accounts"
+                      />
                     </List>
                   </Drawer>
                 </IconButton>

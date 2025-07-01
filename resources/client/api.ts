@@ -13,9 +13,11 @@ async function useFetch<T>(url: string, options: any = {}): Promise<T> {
 }
 
 function usePostFetch<T>(url: string, data: any, options: any = {}): Promise<T> {
+  let method = options.method ?? 'POST';
+
   return useFetch(url, {
     ...options,
-    method: 'POST',
+    method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
@@ -57,8 +59,27 @@ export const loadAccounts = async () => {
   return useFetch<Account[]>('/accounts');
 };
 
+export const updateAccount = async (account: Account) => {
+  return usePostFetch(`/accounts/${account.iban}`, account, { method: 'PUT' });
+};
+
+export const createAccount = async (account: Omit<Account, 'iban'> & { iban: string }) => {
+  return usePostFetch('/accounts', account);
+};
+
+export const deleteAccount = async (iban: string) => {
+  return useFetch(`/accounts/${iban}`, { method: 'DELETE' });
+};
+
 export const loadPayments = async () => {
   const data = await useFetch<AppliedPayment[]>('/payments');
+  return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
+};
+
+export const loadPaymentsByDateRange = async (from: Date, to: Date) => {
+  const data = await useFetch<AppliedPayment[]>(
+    `/payments/${format(from, 'yyyy-MM-dd')}/${format(to, 'yyyy-MM-dd')}`
+  );
   return data.map((x) => ({ ...x, bookingDate: new Date(x.bookingDate) }));
 };
 

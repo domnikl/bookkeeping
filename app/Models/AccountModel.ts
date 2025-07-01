@@ -10,6 +10,12 @@ export default class AccountModel extends BaseModel {
   @column()
   public name: string;
 
+  @column()
+  public isActive: boolean = true;
+
+  @column()
+  public sort: number = 0;
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime;
 

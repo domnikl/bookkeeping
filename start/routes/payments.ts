@@ -13,6 +13,17 @@ Route.get('payments', async () => {
     .limit(50);
 });
 
+Route.get('payments/:from/:to', async ({ params }) => {
+  const from = params.from;
+  const to = params.to;
+
+  return PaymentModel.query()
+    .preload('category')
+    .preload('transaction')
+    .whereBetween('bookingDate', [from, to])
+    .orderBy('bookingDate', 'desc');
+});
+
 Route.post('payments', async ({ request, response }) => {
   const payment = request.body();
   delete payment.transaction;

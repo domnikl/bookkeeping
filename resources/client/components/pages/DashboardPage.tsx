@@ -7,6 +7,7 @@ import ReportBalances from '../templates/ReportBalances';
 import ReportForecast from '../templates/ReportForecast';
 import { Link } from 'react-router-dom';
 import BalancesGraph from '../templates/BalancesGraph';
+import PaymentsPieChart from '../templates/PaymentsPieChart';
 import AccountSelect from '../molecules/AccountSelect';
 import Account from '../../interfaces/Account';
 import Category from 'resources/client/interfaces/Category';
@@ -64,6 +65,11 @@ export default function DashboardPage() {
 
             <TransactionsList />
           </Stack>
+        </Grid>
+
+        <Grid item md={12} lg={6}>
+          <h2>Payments by category (this month)</h2>
+          <PaymentsPieChart />
         </Grid>
 
         <Grid item md={12} lg={6}>

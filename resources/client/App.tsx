@@ -12,6 +12,7 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import PaymentsPage, { loader as paymentsLoader } from './components/pages/PaymentsPage';
 import DashboardPage from './components/pages/DashboardPage';
 import CategoriesPage from './components/pages/CategoriesPage';
+import AccountsPage from './components/pages/AccountsPage';
 import EditCategoryPage, {
   loader as categoryLoader,
   createLoader as categoryCreateLoader,
@@ -30,6 +31,7 @@ const router = createHashRouter([
       { path: '/categories/:categoryId/payments', Component: PaymentsPage, loader: paymentsLoader },
       { path: '/categories/create', Component: EditCategoryPage, loader: categoryCreateLoader },
       { path: '/categories', Component: CategoriesPage },
+      { path: '/accounts', Component: AccountsPage },
       {
         path: '/transactions/apply/:transactionId',
         Component: ApplyTransactionPage,
