@@ -74,7 +74,7 @@ Route.get('categories/:categoryId/historic', async ({ request }) => {
       due_date: new Date(),
       parent: category.parent,
       account: category.account,
-      onetime: category.onetime,
+      onetime: category.oneTime,
       created_at: category.createdAt,
     });
   }
