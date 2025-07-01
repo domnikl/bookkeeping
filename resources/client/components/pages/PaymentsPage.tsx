@@ -3,10 +3,12 @@ import { useQuery } from 'react-query';
 import { AppliedPayment } from 'resources/client/interfaces/Payment';
 import IsFetching from '../atoms/IsFetching';
 import PaymentsList from '../templates/PaymentsList';
+import PaymentsTimelineGraph from '../templates/PaymentsTimelineGraph';
 import { loadCategory, loadPayments } from '../../api';
 import Category from 'resources/client/interfaces/Category';
 import { useLoaderData } from 'react-router-dom';
 import { Warning } from '@mui/icons-material';
+import { Grid } from '@mui/material';
 
 export async function loader({ params }) {
   return { category: await loadCategory(params.categoryId) };
@@ -32,11 +34,19 @@ export default function PaymentsPage() {
   return (
     <>
       <h1>
-        Payments
-        {loaderData?.category ? ' for ' + loaderData?.category?.summary : ''} {isActive}
+        Category {loaderData?.category ? loaderData?.category?.summary : ''} {isActive}
       </h1>
       <IsFetching isFetching={isLoading} error={error}>
-        <PaymentsList payments={payments!!} />
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <h2>Timeline (Last 12 Months)</h2>
+            <PaymentsTimelineGraph payments={payments} categoryId={loaderData?.category?.id} />
+          </Grid>
+          <Grid item xs={12}>
+            <h2>Payments</h2>
+            <PaymentsList payments={payments!!} />
+          </Grid>
+        </Grid>
       </IsFetching>
     </>
   );

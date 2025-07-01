@@ -47,6 +47,19 @@ export const loadCategory = async (id: string) => {
   };
 };
 
+export const loadHistoricCategory = async (categoryId: string, from: Date, to: Date) => {
+  const fromStr = format(from, 'yyyy-MM-dd');
+  const toStr = format(to, 'yyyy-MM-dd');
+  const data = await useFetch<any[]>(
+    `/categories/${categoryId}/historic?from=${fromStr}&to=${toStr}`
+  );
+  return data.map((item) => ({
+    ...item,
+    dueDate: item.dueDate ? new Date(item.dueDate) : null,
+    createdAt: new Date(item.createdAt),
+  }));
+};
+
 export const loadCategories = async () => {
   const data = await useFetch<Category[]>('/categories');
   return data.map((x) => ({
