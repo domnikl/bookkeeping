@@ -3,9 +3,6 @@ import AccountModel from 'App/Models/AccountModel';
 
 Route.get('accounts', async () => {
   const accounts = await AccountModel.query().orderBy('sort', 'asc').orderBy('name', 'asc');
-
-  console.log(accounts.map((x) => x.toJSON()));
-
   return accounts.map((x) => ({
     ...x.toJSON(),
     isActive: x.toJSON().is_active,
