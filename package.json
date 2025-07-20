@@ -57,7 +57,7 @@
     "@mui/lab": "^5.0.0-alpha.122",
     "@mui/material": "^5",
     "@mui/x-date-pickers": "^6.0.1",
-    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.0",
     "@types/node-schedule": "^2.1.0",
     "adonis-mix-asset": "^3.0.0",
     "babel-loader": "^9.0.0",
